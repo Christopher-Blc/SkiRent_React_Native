@@ -1,9 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { PasswordInputRectangle } from "./PasswordInputRectangle";
 import { ButtonRectangular } from "./ButtonRectangular";
 import { Feather } from "@expo/vector-icons";
-import { TextInputRectangle } from "./textInputRectangle";
+import { TextInputRectangle } from "./TextInputRectangle";
 
 //para este he gastado un poco el chat y para lo de password tamb pero lo demas
 //si que es picado por mi
@@ -27,15 +26,11 @@ export const LoginCard = () => {
       {/* Email label */}
       <Text style={styles.label}>Correo Electrónico</Text>
 
-      <TextInputRectangle 
+      <TextInputRectangle
         placeholder="nombre@ejemplo.com"
-        icon="mail"
-        borderColor="#d1d5db"
-        bgColor="#f9fafb"
-        iconColor="#9ca3af"
-        width={"100%"}
-
+        iconLeft="mail"
       />
+
 
       {/* Forgot password row */}
       <View style={styles.passwordRow}>
@@ -43,13 +38,9 @@ export const LoginCard = () => {
         <Text style={styles.forgot}>¿Olvidaste tu contraseña?</Text>
       </View>
 
-      <PasswordInputRectangle
-        placeholder="•••••••••••"
+      <TextInputRectangle
         iconLeft="lock"
-        borderColor="#d1d5db"
-        bgColor="#f9fafb"
-        iconColor="#9ca3af"
-        width={"100%"}
+        isSecure={true}
       />
 
       {/* Login button */}
@@ -99,8 +90,6 @@ const styles = StyleSheet.create({
     elevation: 3,
 
   },
-
-
 
   lockCircle: {
     width: 70,
