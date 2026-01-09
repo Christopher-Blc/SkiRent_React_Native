@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, ScrollView } from "react-native";
 import { Card, Button } from "react-native-paper";
 import { router } from "expo-router";
 import { TextInputRectangle } from "../../../components/TextInputRectangle";
@@ -27,11 +27,13 @@ export default function CrearClienteScreen() {
   };
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <Card style={styles.card}>
         <Text style={styles.title}>Crear cliente</Text>
 
         <View style={styles.form}>
+          
           <TextInputRectangle
             placeholder="Nombre"
             iconLeft="user"
@@ -77,7 +79,7 @@ export default function CrearClienteScreen() {
               colorTxt="#374151"
               colorBorder="#d1d5db"
               colorIcon="#374151"
-              widthButton={'50%'}
+              widthButton={'48%'}
               onPressed={() => router.back()}
             />
 
@@ -88,13 +90,14 @@ export default function CrearClienteScreen() {
               colorTxt="#ffffff"
               colorIcon="#ffffff"
               onPressed={onGuardar}
-              widthButton={'50%'}
+              widthButton={'48%'}
             />
 
           </View>
         </View>
       </Card>
     </View>
+    </ScrollView>
   );
 }
 
@@ -103,6 +106,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     justifyContent: "center",
+    alignContent: "center",
   },
   card: {
     padding: 16,
