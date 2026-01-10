@@ -59,7 +59,17 @@ export default function CrearClienteScreen() {
       Alert.alert("Cliente creado", "Se ha creado correctamente", [
         { text: "OK", onPress: () => router.replace("/clientes/") },
       ]);
-    } catch (e) {
+    } catch (e: any) {
+      if (e?.message === "EMAIL_DUPLICADO") {
+        Alert.alert("Email duplicado", "Ya existe un cliente con ese email");
+        return;
+      }
+
+      if (e?.message === "TELEFONO_DUPLICADO") {
+        Alert.alert("Teléfono duplicado", "Ya existe un cliente con ese teléfono");
+        return;
+      }
+
       Alert.alert("Error", "No se ha podido crear el cliente");
     } finally {
       setGuardando(false);

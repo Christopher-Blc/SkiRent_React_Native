@@ -146,10 +146,19 @@ export default function ClienteDetalle() {
       await clientesService.update(clientId, result.data);
       cerrarEditar();
       await cargarCliente();
-    } catch (e) {
-      Alert.alert("Error", "No se pudo guardar");
-    }
-  };
+    } catch (e: any) {
+      if (e?.message === "EMAIL_DUPLICADO") {
+        Alert.alert("Email duplicado", "Ya existe un cliente con ese email");
+        return;
+      }
+
+      if (e?.message === "TELEFONO_DUPLICADO") {
+        Alert.alert("Teléfono duplicado", "Ya existe un cliente con ese teléfono");
+        return;
+      }
+
+      Alert.alert("Error", "No se ha podido crear el cliente");
+    }}
 
 
 
