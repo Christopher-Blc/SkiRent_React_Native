@@ -66,13 +66,9 @@ export const LoginCard = () => {
     if (usuario.RolId === 1) {
       router.replace("/home"); // admin
     } else {
-      router.replace("/custumer/index"); // customer
+      router.replace("/customer"); // customer
     }
   };
-
-  const test = ()=>{
-    router.replace("/custumer/index")
-  }
 
   return (
     
@@ -132,7 +128,7 @@ export const LoginCard = () => {
           text="Iniciar Sesión"
           colorBG="#4f46e5"
           colorTxt="#ffffff"
-          onPressed={test}
+          onPressed={login}
         />
 
       {/* Divider */}
