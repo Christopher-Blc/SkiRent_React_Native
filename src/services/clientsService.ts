@@ -29,6 +29,10 @@ export const clientesService = {
     return nuevo;
   },
 
+  async findByEmail(email: string): Promise<Cliente | null> {
+    return clientesDb.find((c) => c.email === email) ?? null;
+  },
+
   async update(
     id: number,
     data: Partial<Omit<Cliente, "id">>

@@ -1,5 +1,5 @@
 import { StyleSheet, View} from 'react-native';
-import { LoginCard } from '../../components/LoginCard';
+import { LoginCard } from '../components/LoginCard';
 
 export default function App() {
   return (

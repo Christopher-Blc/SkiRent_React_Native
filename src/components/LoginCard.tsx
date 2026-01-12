@@ -1,48 +1,78 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ButtonRectangular } from "./ButtonRectangular";
 import { Feather } from "@expo/vector-icons";
 import { TextInputRectangle } from "./TextInputRectangle";
 import { useRouter } from "expo-router";
+import { Cliente } from "../data/clientes";
+import { clientesService } from "../services/clientsService";
 
 
-
-
-//para este he gastado un poco el chat y para lo de password tamb pero lo demas
-//si que es picado por mi
 export const LoginCard = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const validar = () => {
+  const validar = async () => {
     let valido = true;
 
     if (!email.includes("@")) {
       setEmailError("El email no es válido");
-      valido = false;
+      return null;
     } else {
       setEmailError("");
     }
 
-    if (password.length < 8) {
-      setPasswordError("La contraseña debe tener al menos 8 caracteres");
-      valido = false;
+    // Obtener clientes
+    const clientes = await clientesService.list();
+    const usuario = clientes.find(
+      (c) => c.email.toLowerCase() === email.toLowerCase()
+    );
+
+    if (!usuario) {
+      setEmailError("El email no existe");
+      return null;
+    }
+
+    if (usuario.password !== password) {
+      setPasswordError("La contraseña no es correcta");
+      return null;
     } else {
       setPasswordError("");
     }
 
-    return valido;
+    return usuario; 
   };
-  
-  const login = () => {
-    if (!validar()) return;
 
-    router.replace("/home");
+
+  // const isAdmin = async () => {
+   
+  //   const usuario = await validar();
+  //   if (!usuario) return;
+
+  //   if (usuario.RolId == 1) {
+  //     return true;
+  //   }
+  //   return false;
+      
+  // };
+  
+  const login = async () => {
+    const usuario = await validar();
+    if (!usuario) return;
+
+    if (usuario.RolId === 1) {
+      router.replace("/home"); // admin
+    } else {
+      router.replace("/custumer/index"); // customer
+    }
   };
+
+  const test = ()=>{
+    router.replace("/custumer/index")
+  }
 
   return (
     
@@ -102,7 +132,7 @@ export const LoginCard = () => {
           text="Iniciar Sesión"
           colorBG="#4f46e5"
           colorTxt="#ffffff"
-          onPressed={login}
+          onPressed={test}
         />
 
       {/* Divider */}
@@ -221,3 +251,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+
+
+function findbyEmail(email: string) {
+  throw new Error("Function not implemented.");
+}
+

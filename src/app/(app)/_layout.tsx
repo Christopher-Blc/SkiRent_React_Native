@@ -50,6 +50,11 @@ export default function AppLayout() {
         options={{title:"",href: null }}
       />
 
+      <Tabs.Screen
+        name="customer/index"
+        options={{title:"",href: null }}
+      />
+
     </Tabs>
   );
 }

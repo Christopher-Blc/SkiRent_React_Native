@@ -10,6 +10,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const telefonoRegex = /^\+?\d{7,15}$/;
+const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
 
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -19,6 +21,10 @@ const schema = z.object({
     .string()
     .min(1, "El teléfono es obligatorio")
     .regex(telefonoRegex, "Teléfono no válido"),
+  password: z
+    .string()
+    .min(1, "La contraseña es obligatorio")
+    .regex(passRegex, "Contraseña Invalida"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -38,6 +44,7 @@ export default function CrearClienteScreen() {
       surname: "",
       email: "",
       phoneNumber: "",
+      password: "",
     },
   });
 
@@ -50,10 +57,12 @@ export default function CrearClienteScreen() {
 
       await clientesService.create({
         name: data.name.trim(),
+        RolId: 0,
         surname: data.surname.trim(),
         email: data.email.trim(),
         phoneNumber: data.phoneNumber.trim(),
         pedidos: [],
+        password: data.password.trim()
       });
 
       Alert.alert("Cliente creado", "Se ha creado correctamente", [
@@ -168,6 +177,28 @@ export default function CrearClienteScreen() {
                   {errors.phoneNumber?.message ? (
                     <Text style={styles.errorText}>
                       {errors.phoneNumber.message}
+                    </Text>
+                  ) : null}
+                </>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { value, onChange } }) => (
+                <>
+                  <TextInputRectangle
+                    placeholder="Password"
+                    iconLeft="lock"
+                    iconRight="lock"
+                    value={value}
+                    onChangeText={onChange}
+                    autoCapitalize="none"
+                  />
+                  {errors.password?.message ? (
+                    <Text style={styles.errorText}>
+                      {errors.password.message}
                     </Text>
                   ) : null}
                 </>
