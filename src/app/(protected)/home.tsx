@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { ButtonRectangular } from "../../components/ButtonRectangular";
+import { ButtonRectangular } from "@/components/ButtonRectangular";
 
 export default function Home() {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import { Cliente, clientes } from "../data/clientes";
+import { Cliente, clientes } from "@/data/clientes";
 
 let clientesDb: Cliente[] = [...clientes];
 

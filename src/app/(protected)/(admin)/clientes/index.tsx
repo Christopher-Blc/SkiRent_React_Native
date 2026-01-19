@@ -3,9 +3,9 @@ import { View, Text, FlatList, StyleSheet, Pressable } from "react-native";
 import { router, Stack } from "expo-router";
 import { FAB } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
-import { Cliente } from "../../../data/clientes";
-import { clientesService } from "../../../services/clientsService";
-import { ClientsCard } from "../../../components/ClientsCard";
+import { Cliente } from "@/data/clientes";
+import { clientesService } from "@/services/clientsService";
+import { ClientsCard } from "@/components/ClientsCard";
 
 
 export default function Clientes() {
@@ -23,7 +23,7 @@ export default function Clientes() {
 
   return (
     <>
-      <Stack.Screen options={{ title:"Clientes" , headerTitleAlign: "center"}} />
+      
       
       <View style={styles.container}>
             <View style={{ marginTop: 20 }} />

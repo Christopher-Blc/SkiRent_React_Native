@@ -7,16 +7,17 @@ import {
   Animated,
   Dimensions,
   StyleSheet,
-  Alert
+  Alert,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { clientesService } from "../../../services/clientsService";
-import { Cliente } from "../../../data/clientes";
-import { TextInputRectangle } from "../../../components/TextInputRectangle";
-import { ButtonRectangular } from "../../../components/ButtonRectangular";
-import { ClienteCard } from "../../../components/EditClientCard";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import { clientesService } from "@/services/clientsService";
+import { Cliente } from "@/data/clientes";
+import { TextInputRectangle } from "@/components/TextInputRectangle";
+import { ButtonRectangular } from "@/components/ButtonRectangular";
+import { ClienteCard } from "@/components/EditClientCard";
 import { z } from "zod";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { Button, Dialog, Portal } from "react-native-paper";
 
 
 
@@ -49,6 +50,10 @@ export default function ClienteDetalle() {
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
+
+  const openConfirmDelete = () => setConfirmDeleteVisible(true);
+  const closeConfirmDelete = () => setConfirmDeleteVisible(false);
 
   const cargarCliente = async () => {
     setCargando(true);
@@ -103,29 +108,8 @@ export default function ClienteDetalle() {
   };
 
   const eliminar = () => {
-  Alert.alert(
-    "Eliminar cliente",
-    "¿Seguro que quieres eliminar este cliente?",
-    [
-      {
-        text: "Cancelar",
-        style: "cancel",
-      },
-      {
-        text: "Eliminar",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await clientesService.remove(clientId);
-            router.replace("/clientes/"); // vuelve a la lista
-          } catch (e) {
-            Alert.alert("Error", "No se pudo eliminar el cliente");
-          }
-        },
-      },
-    ]
-  );
-};
+    openConfirmDelete();
+  };
 
   const guardar = async () => {
     if (!cliente) return;
@@ -158,7 +142,8 @@ export default function ClienteDetalle() {
       }
 
       Alert.alert("Error", "No se ha podido crear el cliente");
-    }}
+    }
+  }
 
 
 
@@ -167,14 +152,39 @@ export default function ClienteDetalle() {
 
   return (
     <>
-          
-    <ClienteCard
-      cliente={cliente}
-      onEditar={abrirEditar}
-      onEliminar={eliminar}/>
-      
+      <Stack.Screen options={{ title:"Cliente " + name , headerTitleAlign: "center"}} />
+      <Portal>
+        <Dialog visible={confirmDeleteVisible} onDismiss={closeConfirmDelete}>
+          <Dialog.Title>Eliminar cliente</Dialog.Title>
+          <Dialog.Content>
+            <Text>¿Seguro que quieres eliminar este cliente?</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={closeConfirmDelete}>Cancelar</Button>
+            <Button
+              onPress={async () => {
+                closeConfirmDelete();
+                try {
+                  await clientesService.remove(clientId);
+                  router.replace("/clientes");
+                } catch (e) {
+                  Alert.alert("Error", "No se pudo eliminar el cliente");
+                }
+              }}
+            >
+              Eliminar
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
 
-      
+      <ClienteCard
+        cliente={cliente}
+        onEditar={abrirEditar}
+        onEliminar={eliminar} />
+
+
+
       {/* Popup desde abajo */}
       <Modal visible={editar} transparent animationType="none" onRequestClose={cerrarEditar}>
         {/* fondo oscuro, si pulsas fuera cierra */}
@@ -222,7 +232,7 @@ export default function ClienteDetalle() {
                   colorTxt="#fff"
                   onPressed={guardar}
                 />
-                
+
                 <View style={{ height: 10 }} />
                 <ButtonRectangular
                   text="Cancelar"
