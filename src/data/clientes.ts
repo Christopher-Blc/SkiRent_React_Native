@@ -46,4 +46,34 @@ export const clientes: Cliente[] = [
     pedidos: ["Pedido C"],
     password:"Maria2006"
   },
+  {
+    id: 3,
+    RolId: roles[1].id,
+    name: "Sharon",
+    surname: "Bolocan",
+    email: "sharon.bolocan@gmail.com",
+    phoneNumber: "+34641251849",
+    pedidos: ["Pedido C"],
+    password:"Maria2006"
+  },
+  {
+    id: 4,
+    RolId: roles[1].id,
+    name: "ioan",
+    surname: "bolocan",
+    email: "ioan.bolocan@gmail.com",
+    phoneNumber: "+34641251849",
+    pedidos: ["Pedido C"],
+    password:"Maria2006"
+  },
+  {
+    id: 5,
+    RolId: roles[1].id,
+    name: "maman",
+    surname: "bolocan",
+    email: "maman.bolocan@gmail.com",
+    phoneNumber: "+34641251849",
+    pedidos: ["Pedido C"],
+    password:"Maria2006"
+  },
 ];

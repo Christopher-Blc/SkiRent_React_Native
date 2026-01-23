@@ -44,7 +44,8 @@ export const useLogin = () => {
     if (usuario.RolId === 1) {
       router.replace("/home"); // admin
     } else {
-      router.replace("/customers"); // customer
+      //Encontrar ruta para llegar a pantalla para customer 
+      router.replace("/"); // pantalla a la que llega un usuario que se loguea y tiene rol de 'NORMAL'
     }
   };
 

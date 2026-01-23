@@ -1,7 +1,8 @@
 import { useLogin } from '@/hooks/useLogin';
 import { Feather } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
+import { Pressable } from 'react-native';
 
 export default function AppLayout() {
 
@@ -21,6 +22,7 @@ export default function AppLayout() {
       {/* HOME */}
       <Tabs.Screen
         name="home"
+        
         options={{
           title: 'Inicio',
           tabBarLabel: 'Home',
@@ -35,6 +37,16 @@ export default function AppLayout() {
       <Tabs.Screen
         name="(admin)/clientes"
         options={{
+          headerRight: () => (
+          <Pressable
+            onPress={() => {
+              router.push('/'); // o lo que quieras abrir
+            }}
+            style={{ marginRight: 15 }}
+          >
+            <Feather name="log-out" size={22} color="#fff" />
+          </Pressable>
+        ),
           title: 'Clientes',
           tabBarIcon: ({ color, size }) => (
             <Feather name="users" color={color} size={size} />
