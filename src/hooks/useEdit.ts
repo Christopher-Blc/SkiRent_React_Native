@@ -4,7 +4,7 @@ import { Alert, Animated, Dimensions } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { z } from "zod";
 import { clientesService } from "@/services/clientsService";
-import type { Cliente } from "@/data/clientes";
+import { Cliente } from "@/types/Clients";
 
 const H = Dimensions.get("window").height;
 

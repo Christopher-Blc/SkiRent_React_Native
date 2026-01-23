@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { Cliente } from "../data/clientes";
 import { ButtonRectangular } from "./ButtonRectangular";
+import { Cliente } from "@/types/Clients";
 
 interface Props {
   cliente: Cliente;
