@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import { TextInput } from "react-native-paper";
 import { Feather } from "@expo/vector-icons";
+import { useThemeStore } from "@/store/themeStore";
+import { getTheme } from "@/styles/theme";
 
 interface TextInputRectangleProps {
   placeholder?: string;
@@ -46,12 +48,12 @@ export const TextInputRectangle = ({
   iconRightShow = "eye",
   iconRightHide = "eye-off",
 
-  iconColor = "#7d7d7d",
+  iconColor,
   iconSize = 20,
 
-  textColor = "#333333",
-  placeholderColor = "#7d7d7d",
-  bgColor = "#f7f9fc",
+  textColor,
+  placeholderColor,
+  bgColor,
 
   width = "100%",
   height = 60,
@@ -63,14 +65,21 @@ export const TextInputRectangle = ({
   autoCapitalize = "sentences",
 }: TextInputRectangleProps) => {
   const [hidden, setHidden] = useState(isSecure);
+  const mode = useThemeStore((s) => s.mode);
+  const theme = getTheme(mode);
+  const resolvedIconColor = iconColor ?? theme.colors.textSecondary;
+  const resolvedTextColor = textColor ?? theme.colors.textPrimary;
+  const resolvedPlaceholderColor = placeholderColor ?? theme.colors.textSecondary;
+  const resolvedBgColor = bgColor ?? theme.colors.surface;
 
   return (
     <TextInput
       mode="outlined"
       placeholder={placeholder}
-      placeholderTextColor={placeholderColor}
+      placeholderTextColor={resolvedPlaceholderColor}
       secureTextEntry={isSecure && hidden}
-      activeOutlineColor="#3f60bbff"
+      activeOutlineColor={theme.colors.primary}
+      outlineColor={theme.colors.border}
       onChangeText={onChangeText}
       value={value}
       keyboardType={keyboardType}
@@ -80,16 +89,21 @@ export const TextInputRectangle = ({
         {
           width,
           height,
-          color: textColor,
-          backgroundColor: bgColor,
+          color: resolvedTextColor,
+          backgroundColor: resolvedBgColor,
         },
       ]}
+      contentStyle={{ color: textColor }} 
       theme={{ roundness: 16 }}
       left={
         iconLeft ? (
           <TextInput.Icon
             icon={() => (
-              <Feather name={iconLeft} size={iconSize} color={iconColor} />
+              <Feather
+                name={iconLeft}
+                size={iconSize}
+                color={resolvedIconColor}
+              />
             )}
           />
         ) : null
@@ -102,7 +116,7 @@ export const TextInputRectangle = ({
               <Feather
                 name={hidden ? iconRightShow : iconRightHide}
                 size={iconSize}
-                color={iconColor}
+                color={resolvedIconColor}
               />
             )}
           />
@@ -110,7 +124,11 @@ export const TextInputRectangle = ({
           <TextInput.Icon
             onPress={onPressIconRight}
             icon={() => (
-              <Feather name={iconRight} size={iconSize} color={iconColor} />
+              <Feather
+                name={iconRight}
+                size={iconSize}
+                color={resolvedIconColor}
+              />
             )}
           />
         ) : null

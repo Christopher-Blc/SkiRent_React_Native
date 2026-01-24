@@ -1,11 +1,11 @@
 import React, { createContext, useEffect, useMemo, useState } from "react";
-import { authService, type Session, type UserProfile } from "@/services/authService";
+import { authService, type Session } from "@/services/authService";
+import { useUserStore } from "@/store/userStore";
 
 type AuthState = {
   isLoading: boolean;
   isAuthenticated: boolean;
   session: Session | null;
-  user: UserProfile | null;
 
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -16,13 +16,20 @@ export const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const setUser = useUserStore((state) => state.setUser);
+  const clearUser = useUserStore((state) => state.clearUser);
 
   useEffect(() => {
     const init = async () => {
       try {
+        // simular que este cargando durante 5 segundos
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+
         const restored = await authService.restoreSession();
-        if (!restored) return;
+        if (!restored) {
+          clearUser();
+          return;
+        }
 
         setSession(restored);
 
@@ -31,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         else {
           await authService.logout();
           setSession(null);
-          setUser(null);
+          clearUser();
         }
       } finally {
         setIsLoading(false);
@@ -39,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     init();
-  }, []);
+  }, [clearUser, setUser]);
 
   const login = async (email: string, password: string) => {
     const result = await authService.login(email, password);
@@ -50,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await authService.logout();
     setSession(null);
-    setUser(null);
+    clearUser();
   };
 
   const value = useMemo<AuthState>(
@@ -58,11 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       isAuthenticated: !!session,
       session,
-      user,
       login,
       logout,
     }),
-    [isLoading, session, user]
+    [isLoading, session, login, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

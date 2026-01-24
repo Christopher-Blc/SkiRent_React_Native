@@ -1,4 +1,4 @@
-import { clientes } from "@/types/Mocks/clientes";
+import { clientes } from "@/types/Mocks/users";
 import { Cliente } from "@/types/Clients";
 
 let clientesDb: Cliente[] = [...clientes];

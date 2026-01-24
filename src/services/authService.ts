@@ -1,24 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { clientesService } from "@/services/userService";
-import { Cliente, RoleName, roles } from "@/types/Clients";
+import { Cliente } from "@/types/Clients";
 
 export type Session = {
   userId: number;
   token: string;
 };
 
-export type UserProfile = {
-  id: number;
-  email: string;
-  name: string;
-  surname: string;
-  role: RoleName;
-  displayName: string;
-};
-
 export type AuthResult = {
   session: Session;
-  user: UserProfile;
+  user: Cliente;
 };
 
 export type AuthErrorCode =
@@ -36,22 +27,6 @@ export class AuthError extends Error {
 }
 
 const KEY_SESSION = "auth_session";
-
-const roleById = new Map(roles.map((role) => [role.id, role.name]));
-
-const toUserProfile = (cliente: Cliente): UserProfile => {
-  const role = roleById.get(cliente.RolId) ?? "NORMAL";
-  const displayName = cliente.name;
-
-  return {
-    id: cliente.id,
-    email: cliente.email,
-    name: cliente.name,
-    surname: cliente.surname,
-    role,
-    displayName,
-  };
-};
 
 export const authService = {
   async login(email: string, password: string): Promise<AuthResult> {
@@ -81,7 +56,7 @@ export const authService = {
 
     const result: AuthResult = {
       session,
-      user: toUserProfile(usuario),
+      user: usuario,
     };
 
     // persistir sesión
@@ -108,8 +83,8 @@ export const authService = {
     }
   },
 
-  async getUserById(id: number): Promise<UserProfile | null> {
+  async getUserById(id: number): Promise<Cliente | null> {
     const usuario = await clientesService.getById(id);
-    return usuario ? toUserProfile(usuario) : null;
+    return usuario ?? null;
   },
 };

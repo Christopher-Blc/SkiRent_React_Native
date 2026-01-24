@@ -6,10 +6,14 @@ import { useFocusEffect } from "@react-navigation/native";
 import { clientesService } from "@/services/userService";
 import { ClientsCard } from "@/components/ClientsCard";
 import { Cliente } from "@/types/Clients";
+import { useThemeStore } from "@/store/themeStore";
+import { getTheme } from "@/styles/theme";
 
 
 export default function Clientes() {
   const [lista, setLista] = useState<Cliente[]>([]);
+  const mode = useThemeStore((s) => s.mode);
+  const theme = getTheme(mode);
 
   const cargar = useCallback(() => {
     clientesService.list().then(setLista);
@@ -25,7 +29,7 @@ export default function Clientes() {
     <>
       
       
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <View style={{ marginTop: 20 }} />
       
         <FlatList
@@ -46,9 +50,9 @@ export default function Clientes() {
 
         <FAB
           icon="plus"
-          style={styles.fab}
+          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
           onPress={() => router.push("/clientes/crear")}
-          color="white"
+          color={theme.colors.primaryContrast}
         />
       </View>
   </>);

@@ -1,4 +1,4 @@
-import { Cliente, roles } from "../Clients";
+import {  Cliente, roles,  } from "../Clients";
 
 export const clientes: Cliente[] = [
   {
@@ -9,7 +9,9 @@ export const clientes: Cliente[] = [
     email: "chris.bolocan@gmail.com",
     phoneNumber: "+34641251848",
     pedidos: ["Pedido A", "Pedido B"],
-    password:"Chris2006"
+    password:"Chris2006",
+    displayName: "nombreEjemplo",
+    avatar: null
   },
   {
     id: 2,
@@ -19,7 +21,9 @@ export const clientes: Cliente[] = [
     email: "Martinez.maria@gmail.com",
     phoneNumber: "+34641251849",
     pedidos: ["Pedido C"],
-    password:"Maria2006"
+    password:"Maria2006",
+    displayName: "nombreEjemplo",
+    avatar: null
   },
   {
     id: 3,
@@ -29,7 +33,9 @@ export const clientes: Cliente[] = [
     email: "sharon.bolocan@gmail.com",
     phoneNumber: "+34641251849",
     pedidos: ["Pedido C"],
-    password:"Test2006"
+    password:"Test2006",
+    displayName: "nombreEjemplo",
+    avatar: null
   },
   {
     id: 4,
@@ -39,7 +45,9 @@ export const clientes: Cliente[] = [
     email: "ioan.bolocan@gmail.com",
     phoneNumber: "+34641251849",
     pedidos: ["Pedido C"],
-    password:"Test2006"
+    password:"Test2006",
+    displayName: "nombreEjemplo",
+    avatar: null
   },
   {
     id: 5,
@@ -49,6 +57,8 @@ export const clientes: Cliente[] = [
     email: "maman.bolocan@gmail.com",
     phoneNumber: "+34641251849",
     pedidos: ["Pedido C"],
-    password:"Test2006"
+    password:"Test2006",
+    displayName: "nombreEjemplo",
+    avatar: null
   },
 ];

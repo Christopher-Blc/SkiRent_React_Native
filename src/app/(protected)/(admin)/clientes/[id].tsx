@@ -7,8 +7,12 @@ import { TextInputRectangle } from "@/components/TextInputRectangle";
 import { ButtonRectangular } from "@/components/ButtonRectangular";
 import { ClienteCard } from "@/components/EditClientCard";
 import { useEdit } from "@/hooks/useEdit";
+import { useThemeStore } from "@/store/themeStore";
+import { getTheme } from "@/styles/theme";
 
 export default function ClienteDetalle() {
+  const mode = useThemeStore((s) => s.mode);
+  const theme = getTheme(mode);
   //constantes que vienen del hook useEdit y controlan toda la logica de editar/eliminar cliente
   const {
     cargando,
@@ -36,8 +40,20 @@ export default function ClienteDetalle() {
     guardar,
   } = useEdit();
 
-  if (cargando) return <Text>Cargando...</Text>;
-  if (!cliente) return <Text>Cliente no encontrado</Text>;
+  if (cargando) {
+    return (
+      <View style={[styles.page, { backgroundColor: theme.colors.background }]}>
+        <Text style={{ color: theme.colors.textPrimary }}>Cargando...</Text>
+      </View>
+    );
+  }
+  if (!cliente) {
+    return (
+      <View style={[styles.page, { backgroundColor: theme.colors.background }]}>
+        <Text style={{ color: theme.colors.textPrimary }}>Cliente no encontrado</Text>
+      </View>
+    );
+  }
 
   return (
     <>
@@ -58,15 +74,28 @@ export default function ClienteDetalle() {
       </Portal>
 
 
-      <ClienteCard cliente={cliente} onEditar={abrirEditar} onEliminar={eliminar} />
+      <View style={[styles.page, { backgroundColor: theme.colors.background }]}>
+        <ClienteCard cliente={cliente} onEditar={abrirEditar} onEliminar={eliminar} />
+      </View>
       {/* Editar cliente modal que aparece desde abajo y ocupa el 80% de la pantalla */}
       <Modal visible={editar} transparent animationType="none" onRequestClose={cerrarEditar}>
         <Pressable style={styles.backdrop} onPress={cerrarEditar} />
 
         {/* Hoja animada desde abajo que contiene el formulario de editar el usuario */}
-        <Animated.View style={[styles.sheet, { transform: [{ translateY: animY }] }]}>
-          <View style={styles.handle} />
-          <Text style={styles.sheetTitle}>Editar cliente</Text>
+        <Animated.View
+          style={[
+            styles.sheet,
+            {
+              transform: [{ translateY: animY }],
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.border,
+            },
+          ]}
+        >
+          <View style={[styles.handle, { backgroundColor: theme.colors.border }]} />
+          <Text style={[styles.sheetTitle, { color: theme.colors.textPrimary }]}>
+            Editar cliente
+          </Text>
 
           {/* el keyboard avoiding view para que no tape el teclado los inputs , cuanto mas offset mas sube el contenido */}
           <KeyboardAvoidingView
@@ -100,17 +129,17 @@ export default function ClienteDetalle() {
               <View style={{ marginTop: 14 }}>
                 <ButtonRectangular
                   text="Guardar"
-                  colorBG="#1a0083ff"
-                  colorTxt="#fff"
+                  colorBG={theme.colors.primary}
+                  colorTxt={theme.colors.primaryContrast}
                   onPressed={guardar}
                 />
 
                 <View style={{ height: 10 }} />
                 <ButtonRectangular
                   text="Cancelar"
-                  colorBG="#fff"
-                  colorTxt="#000"
-                  colorBorder="#000"
+                  colorBG={theme.colors.surface}
+                  colorTxt={theme.colors.textPrimary}
+                  colorBorder={theme.colors.border}
                   onPressed={cerrarEditar}
                 />
               </View>
@@ -125,6 +154,9 @@ export default function ClienteDetalle() {
 }
 
 const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+  },
   backdrop: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.35)",
@@ -134,18 +166,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "white",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 16,
     maxHeight: "80%",
+    borderWidth: 1,
   },
   handle: {
     alignSelf: "center",
     width: 40,
     height: 5,
     borderRadius: 10,
-    backgroundColor: "#ccc",
     marginBottom: 10,
   },
   sheetTitle: {

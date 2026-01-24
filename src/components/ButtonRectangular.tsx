@@ -1,16 +1,19 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import React from "react";
+import { Text, StyleSheet, Pressable } from "react-native";
+import { Feather, AntDesign } from "@expo/vector-icons";
 
-// Icon type (optional)
+type IconProp =
+  | { type: "feather"; name: keyof typeof Feather.glyphMap }
+  | { type: "google" };
+
 interface ButtonRectangularProps {
-  icon?: keyof typeof Feather.glyphMap; // hay q pasarle un string pero que haga match exactamente con el nombre del icono
+  icon?: IconProp;
   text: string;
-  colorBG: string,
-  colorTxt: string,
-  colorBorder?: string,
-  colorIcon?: string,
-  iconSize?: number
+  colorBG: string;
+  colorTxt: string;
+  colorBorder?: string;
+  colorIcon?: string;
+  iconSize?: number;
   widthButton?: number | `${number}%`;
   onPressed?: () => void;
 }
@@ -21,15 +24,14 @@ export const ButtonRectangular = ({
   colorBG,
   colorTxt,
   colorBorder,
-  colorIcon = '#ffffff',
+  colorIcon = "#ffffff",
   iconSize = 20,
   widthButton = "100%",
   onPressed,
-
 }: ButtonRectangularProps) => {
   const hasBorder = !!colorBorder;
+
   return (
-    
     <Pressable
       onPress={onPressed}
       style={[
@@ -42,26 +44,39 @@ export const ButtonRectangular = ({
         },
       ]}
     >
+      {icon?.type === "feather" ? (
+        <Feather
+          name={icon.name}
+          color={colorIcon}
+          size={iconSize}
+          style={{ marginRight: 12 }}
+        />
+      ) : null}
 
-        {icon ? <Feather name={icon} color={colorIcon} size={iconSize} style={{ marginRight: 12 }}/> : null}
-        <Text style={[styles.buttonText , {color: colorTxt}]}>{text}</Text>
+      {icon?.type === "google" ? (
+        <AntDesign
+          name="google"
+          color={colorIcon}
+          size={iconSize}
+          style={{ marginRight: 12 }}
+        />
+      ) : null}
+
+      <Text style={[styles.buttonText, { color: colorTxt }]}>{text}</Text>
     </Pressable>
   );
 };
 
-
-
 const styles = StyleSheet.create({
-  
   button: {
     height: 60,
     borderRadius: 12,
-    flexDirection: "row",   
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: {
     fontSize: 18,
     fontWeight: "600",
-  }
+  },
 });

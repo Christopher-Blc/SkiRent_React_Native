@@ -2,6 +2,8 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ButtonRectangular } from "./ButtonRectangular";
 import { Cliente } from "@/types/Clients";
+import { useThemeStore } from "@/store/themeStore";
+import { getTheme } from "@/styles/theme";
 
 interface Props {
   cliente: Cliente;
@@ -10,35 +12,58 @@ interface Props {
 }
 
 export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
+  const mode = useThemeStore((s) => s.mode);
+  const theme = getTheme(mode);
+
   return (
-    <View style={styles.card}>
-      <Text style={styles.name}>
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: theme.colors.card, borderColor: theme.colors.border },
+      ]}
+    >
+      <Text style={[styles.name, { color: theme.colors.textPrimary }]}>
         {cliente.name} {cliente.surname}
       </Text>
 
       <View style={styles.infoRow}>
-        <Text style={styles.label}>Correo</Text>
-        <Text style={styles.value}>{cliente.email}</Text>
+        <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+          Correo
+        </Text>
+        <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
+          {cliente.email}
+        </Text>
       </View>
 
       <View style={styles.infoRow}>
-        <Text style={styles.label}>Teléfono</Text>
-        <Text style={styles.value}>{cliente.phoneNumber}</Text>
+        <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+          Teléfono
+        </Text>
+        <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
+          {cliente.phoneNumber}
+        </Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Últimos pedidos</Text>
+      <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>
+        Últimos pedidos
+      </Text>
 
       <View style={styles.orders}>
         {cliente.pedidos.map((p, i) => (
-          <Text key={i} style={styles.orderItem}>• {p}</Text>
+          <Text
+            key={i}
+            style={[styles.orderItem, { color: theme.colors.textSecondary }]}
+          >
+            • {p}
+          </Text>
         ))}
       </View>
 
       <View style={styles.editButton}>
         <ButtonRectangular
           text="Editar"
-          colorBG="#1a0083ff"
-          colorTxt="#fff"
+          colorBG={theme.colors.primary}
+          colorTxt={theme.colors.primaryContrast}
           onPressed={onEditar}
           widthButton="100%"
         />
@@ -46,8 +71,8 @@ export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
         
         <ButtonRectangular
             text="Eliminar"
-            colorBG="#ffffffcc"
-            colorTxt="#000000ff"
+            colorBG={theme.colors.surface}
+            colorTxt={theme.colors.textPrimary}
             colorBorder="#ff0000ff"
             onPressed={onEliminar}
             widthButton="100%"
@@ -59,10 +84,10 @@ export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 18,
     margin: 16,
+    borderWidth: 1,
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -78,7 +103,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    color: "#888",
   },
   value: {
     fontSize: 15,

@@ -1,11 +1,22 @@
 import { Feather } from '@expo/vector-icons';
 import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View, Image } from 'react-native';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserStore } from "@/store/userStore";
+import { useThemeStore } from "@/store/themeStore";
+import { getTheme } from "@/styles/theme";
+
+
 
 export default function AppLayout() {
+
+  //con eso podemos coger los datos del usuario desde el usuario almacenado en zustand
+  const user = useUserStore((s) => s.user);
+  const avatarUrl = user?.avatar ?? "https://cdn-icons-png.flaticon.com/512/149/149071.png";
   const { isAuthenticated, isLoading, logout } = useAuth();
+  const mode = useThemeStore((s) => s.mode);
+  const theme = getTheme(mode);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -25,20 +36,23 @@ export default function AppLayout() {
 
     <Tabs screenOptions={{
       headerShown: true,
-      headerStyle: { backgroundColor: '#002374ff' },
-      headerTintColor: '#ffffff',
+      headerStyle: { backgroundColor: theme.colors.header },
+      headerTintColor: theme.colors.headerText,
 
-      tabBarStyle: { backgroundColor: '#002374ff' },
-      tabBarActiveTintColor: '#ffffff',
-      tabBarInactiveTintColor: '#888888',
+      tabBarStyle: { backgroundColor: theme.colors.tabBar },
+      tabBarActiveTintColor: theme.colors.headerText,
+      tabBarInactiveTintColor: theme.colors.tabBarInactive,
       headerRight: () => (
         <Pressable
           onPress={() => {
-            logout();
+            router.push('/profile');
           }}
           style={{ marginRight: 15 }}
         >
-          <Feather name="log-out" size={22} color="#fff" />
+          <Image
+            source={{ uri: avatarUrl }}
+            style={{ width: 32, height: 32, borderRadius: 16 }}
+          />
         </Pressable>
       ),
     }}>
@@ -68,34 +82,18 @@ export default function AppLayout() {
         }}
       />
 
-      {/* <Tabs.Screen
-        name="customers"
-        options={{
-          title: 'Customers',
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="users" color={color} size={size} />
-          ),
-        }}
-      /> */}
-
-      {/* OCULTOS
+      {/* para esconder del tab que sino aparecen abajo y no quiero eso  */}
       <Tabs.Screen
-      
-        name="clientes/crear"
-        options={{title: "", href: null }}
+        name="profile"
+        options={{ href: null, headerShown: false }}
       />
 
       <Tabs.Screen
-        name="clientes/[id]"
-        options={{title:"",href: null }}
+        name="preferences"
+        options={{ href: null, headerShown: false }}
       />
 
-      <Tabs.Screen
-        name="customer/index"
-        options={{title:"",href: null }}
-      /> */}
 
     </Tabs>
   );
 }
-

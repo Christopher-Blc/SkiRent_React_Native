@@ -21,5 +21,7 @@ export interface Cliente {
   phoneNumber: string;
   pedidos: string[];
   password: string;
+  displayName: string;
+  avatar?: string | null;
 }
 
