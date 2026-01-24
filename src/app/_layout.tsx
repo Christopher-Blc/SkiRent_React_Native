@@ -1,17 +1,29 @@
-import { Stack } from 'expo-router';
-import { PaperProvider } from 'react-native-paper';
+import { AuthProvider, useAuth } from "@/contexts/authcontext";
+import { Stack } from "expo-router";
+import { PaperProvider } from "react-native-paper";
 
-export default function RootLayout() {
+function Navegacion() {
+  const { isLoading, isAuthenticated } = useAuth();
+
+  if (isLoading) return null;
 
   return (
-    <PaperProvider>
-      <Stack screenOptions={{
-        headerShown: false,
-      }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(protected)" />
-      </Stack>
-    </PaperProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      {!isAuthenticated ? (
+        <Stack.Screen name="index" />        // login
+      ) : (
+        <Stack.Screen name="(protected)" /> // app
+      )}
+    </Stack>
+  );
+}
 
+export default function RootLayout() {
+  return (
+    <PaperProvider>
+      <AuthProvider>
+        <Navegacion />
+      </AuthProvider>
+    </PaperProvider>
   );
 }

@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { clientesService } from "@/services/clientsService";
 import { Cliente, RoleName, roles } from "@/types/Clients";
 
@@ -33,6 +34,8 @@ export class AuthError extends Error {
     this.code = code;
   }
 }
+
+const KEY_SESSION = "auth_session";
 
 const roleById = new Map(roles.map((role) => [role.id, role.name]));
 
@@ -76,10 +79,33 @@ export const authService = {
       token: `mock-token-${usuario.id}-${Date.now()}`,
     };
 
-    return {
+    const result: AuthResult = {
       session,
       user: toUserProfile(usuario),
     };
+
+    // persistir sesión
+    await AsyncStorage.setItem(KEY_SESSION, JSON.stringify(result.session));
+
+    return result;
+  },
+
+  async logout(): Promise<void> {
+    await AsyncStorage.removeItem(KEY_SESSION);
+  },
+
+  async restoreSession(): Promise<Session | null> {
+    const raw = await AsyncStorage.getItem(KEY_SESSION);
+    if (!raw) return null;
+
+    try {
+      const session = JSON.parse(raw) as Session;
+      if (!session?.userId || !session?.token) return null;
+      return session;
+    } catch {
+      await AsyncStorage.removeItem(KEY_SESSION);
+      return null;
+    }
   },
 
   async getUserById(id: number): Promise<UserProfile | null> {

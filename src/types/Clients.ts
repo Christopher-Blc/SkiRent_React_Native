@@ -1,3 +1,4 @@
+
 export type RoleName = 'NORMAL' | 'ADMIN';
 
 export interface Role {

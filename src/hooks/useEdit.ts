@@ -1,4 +1,3 @@
-// useEdit.ts
 import { useEffect, useRef, useState } from "react";
 import { Alert, Animated, Dimensions } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";

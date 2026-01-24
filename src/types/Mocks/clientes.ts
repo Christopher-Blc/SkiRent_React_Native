@@ -1,4 +1,4 @@
-import { Cliente, Role, RoleName, roles } from "../Clients.js";
+import { Cliente, roles } from "../Clients";
 
 export const clientes: Cliente[] = [
   {
