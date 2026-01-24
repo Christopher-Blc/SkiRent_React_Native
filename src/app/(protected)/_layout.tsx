@@ -1,11 +1,25 @@
-import { useLogin } from '@/hooks/useLogin';
 import { Feather } from '@expo/vector-icons';
 import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
-import { Pressable } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
+import { useAuth } from '@/contexts/authcontext';
 
 export default function AppLayout() {
+  const { isAuthenticated, isLoading, logout } = useAuth();
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/');
+    }
+  }, [isAuthenticated, isLoading]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color="#4f46e5" />
+      </View>
+    );
+  }
 
   return (
 
@@ -16,7 +30,17 @@ export default function AppLayout() {
 
       tabBarStyle: { backgroundColor: '#002374ff' },
       tabBarActiveTintColor: '#ffffff',
-      tabBarInactiveTintColor: '#888888'
+      tabBarInactiveTintColor: '#888888',
+      headerRight: () => (
+        <Pressable
+          onPress={() => {
+            logout();
+          }}
+          style={{ marginRight: 15 }}
+        >
+          <Feather name="log-out" size={22} color="#fff" />
+        </Pressable>
+      ),
     }}>
 
       {/* HOME */}
@@ -37,16 +61,6 @@ export default function AppLayout() {
       <Tabs.Screen
         name="(admin)/clientes"
         options={{
-          headerRight: () => (
-          <Pressable
-            onPress={() => {
-              router.push('/'); // o lo que quieras abrir
-            }}
-            style={{ marginRight: 15 }}
-          >
-            <Feather name="log-out" size={22} color="#fff" />
-          </Pressable>
-        ),
           title: 'Clientes',
           tabBarIcon: ({ color, size }) => (
             <Feather name="users" color={color} size={size} />
@@ -84,6 +98,5 @@ export default function AppLayout() {
     </Tabs>
   );
 }
-
 
 

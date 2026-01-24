@@ -1,51 +1,34 @@
 import { useState } from "react";
-import { useRouter } from "expo-router";
-import { clientesService } from "@/services/clientsService";
+import { AuthError } from "@/services/authService";
+import { useAuth } from "@/contexts/authcontext";
 
 export const useLogin = () => {
-  const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const validar = async () => {
-    if (!email.includes("@")) {
-      setEmailError("El email no es válido");
-      return null;
-    }
-
+  const handleLogin = async () => {
     setEmailError("");
-
-    const clientes = await clientesService.list();
-    const usuario = clientes.find(
-      (c) => c.email.toLowerCase() === email.toLowerCase()
-    );
-
-    if (!usuario) {
-      setEmailError("El email no existe");
-      return null;
-    }
-
-    if (usuario.password !== password) {
-      setPasswordError("La contraseña no es correcta");
-      return null;
-    }
-
     setPasswordError("");
 
-    return usuario;
-  };
+    try {
+      await login(email.trim(), password);
+    } catch (error) {
+      if (error instanceof AuthError) {
+        if (error.code === "EMAIL_INVALID" || error.code === "USER_NOT_FOUND") {
+          setEmailError(error.message);
+          return;
+        }
 
-  const login = async () => {
-    const usuario = await validar();
-    if (!usuario) return;
+        if (error.code === "PASSWORD_INVALID") {
+          setPasswordError(error.message);
+          return;
+        }
+      }
 
-    if (usuario.RolId === 1) {
-      router.replace("/home"); // admin
-    } else {
-      //Encontrar ruta para llegar a pantalla para customer 
-      router.replace("/"); // pantalla a la que llega un usuario que se loguea y tiene rol de 'NORMAL'
+      setPasswordError("No se pudo iniciar sesión");
     }
   };
 
@@ -56,6 +39,6 @@ export const useLogin = () => {
     setPassword,
     emailError,
     passwordError,
-    login,
+    login: handleLogin,
   };
 };

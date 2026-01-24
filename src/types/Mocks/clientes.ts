@@ -29,7 +29,7 @@ export const clientes: Cliente[] = [
     email: "sharon.bolocan@gmail.com",
     phoneNumber: "+34641251849",
     pedidos: ["Pedido C"],
-    password:"Maria2006"
+    password:"Test2006"
   },
   {
     id: 4,
@@ -39,7 +39,7 @@ export const clientes: Cliente[] = [
     email: "ioan.bolocan@gmail.com",
     phoneNumber: "+34641251849",
     pedidos: ["Pedido C"],
-    password:"Maria2006"
+    password:"Test2006"
   },
   {
     id: 5,
@@ -49,6 +49,6 @@ export const clientes: Cliente[] = [
     email: "maman.bolocan@gmail.com",
     phoneNumber: "+34641251849",
     pedidos: ["Pedido C"],
-    password:"Maria2006"
+    password:"Test2006"
   },
 ];
