@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { authService, Session, UserProfile } from "@/services/authService";
+import { authService, type Session, type UserProfile } from "@/services/authService";
 
 type AuthState = {
   isLoading: boolean;
@@ -11,7 +11,7 @@ type AuthState = {
   logout: () => Promise<void>;
 };
 
-const AuthContext = createContext<AuthState | null>(null);
+export const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +29,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const perfil = await authService.getUserById(restored.userId);
         if (perfil) setUser(perfil);
         else {
-          // si no existe el usuario, limpiamos
           await authService.logout();
           setSession(null);
           setUser(null);
@@ -66,7 +65,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [isLoading, session, user]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

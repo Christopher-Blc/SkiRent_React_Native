@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, Pressable } from "react-native";
 import { router, Stack } from "expo-router";
 import { FAB } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
-import { clientesService } from "@/services/clientsService";
+import { clientesService } from "@/services/userService";
 import { ClientsCard } from "@/components/ClientsCard";
 import { Cliente } from "@/types/Clients";
 

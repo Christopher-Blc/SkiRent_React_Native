@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AuthError } from "@/services/authService";
-import { useAuth } from "@/contexts/authcontext";
+import { useAuth } from "@/hooks/useAuth";
 
 export const useLogin = () => {
   const { login } = useAuth();

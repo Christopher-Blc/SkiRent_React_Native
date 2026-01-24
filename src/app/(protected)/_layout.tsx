@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
-import { useAuth } from '@/contexts/authcontext';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AppLayout() {
   const { isAuthenticated, isLoading, logout } = useAuth();
@@ -98,5 +98,4 @@ export default function AppLayout() {
     </Tabs>
   );
 }
-
 

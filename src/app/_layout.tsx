@@ -1,4 +1,4 @@
-import { AuthProvider, useAuth } from "@/contexts/authcontext";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { Stack } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 

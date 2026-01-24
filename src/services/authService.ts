@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { clientesService } from "@/services/clientsService";
+import { clientesService } from "@/services/userService";
 import { Cliente, RoleName, roles } from "@/types/Clients";
 
 export type Session = {
