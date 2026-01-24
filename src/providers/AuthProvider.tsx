@@ -16,6 +16,7 @@ export const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
+  const storedUser = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
   const clearUser = useUserStore((state) => state.clearUser);
 
@@ -27,18 +28,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         const restored = await authService.restoreSession();
         if (!restored) {
-          clearUser();
           return;
         }
 
         setSession(restored);
 
-        const perfil = await authService.getUserById(restored.userId);
-        if (perfil) setUser(perfil);
-        else {
-          await authService.logout();
-          setSession(null);
-          clearUser();
+        if (!storedUser || storedUser.id !== restored.userId) {
+          const perfil = await authService.getUserById(restored.userId);
+          if (perfil) setUser(perfil);
+          else {
+            await authService.logout();
+            setSession(null);
+            clearUser();
+          }
         }
       } finally {
         setIsLoading(false);
@@ -46,18 +48,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     init();
-  }, [clearUser, setUser]);
+  }, [clearUser, setUser, storedUser]);
 
   const login = async (email: string, password: string) => {
     const result = await authService.login(email, password);
     setSession(result.session);
-    setUser(result.user);
+    if (!storedUser || storedUser.id !== result.user.id) {
+      setUser(result.user);
+    }
   };
 
   const logout = async () => {
     await authService.logout();
     setSession(null);
-    clearUser();
+    // No limpiamos el user para mantener cambios persistidos (avatar/nickname).
   };
 
   const value = useMemo<AuthState>(

@@ -2,13 +2,17 @@ import { useEffect, useState } from "react";
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useUserStore } from "@/store/userStore";
+import { clientesService } from "@/services/userService";
 import { roles } from "@/types/Clients";
 import { TextInputRectangle } from "@/components/TextInputRectangle";
 import { ButtonRectangular } from "@/components/ButtonRectangular";
 import { styles } from "@/styles/profile.styles";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
+import { useAuth } from '@/hooks/useAuth';
+
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -16,6 +20,8 @@ export default function ProfileScreen() {
   const updateUser = useUserStore((s) => s.updateUser);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
+  const { logout } = useAuth();
+
 
   const [name, setName] = useState(user?.name ?? "");
   const [surname, setSurname] = useState(user?.surname ?? "");
@@ -27,11 +33,12 @@ export default function ProfileScreen() {
   const [editSurname, setEditSurname] = useState(false);
   const [editNickname, setEditNickname] = useState(false);
 
+
   useEffect(() => {
     setName(user?.name ?? "");
     setSurname(user?.surname ?? "");
     setDisplayName(user?.displayName ?? user?.name ?? "");
-  }, [user?.displayName, user?.name, user?.surname]);
+  }, [user?.displayName, user?.name, user?.surname , user?.avatar]);
 
   if (!user) {
     return (
@@ -44,59 +51,111 @@ export default function ProfileScreen() {
     );
   }
 
-  const handleSaveName = () => {
+  const handleSaveName = async () => {
     const trimmed = name.trim();
     if (!trimmed) return;
     if (trimmed === user.name) {
       setEditName(false);
       return;
     }
-    updateUser({ name: trimmed });
+    try {
+      await clientesService.update(user.id, { name: trimmed });
+      updateUser({ name: trimmed });
+    } catch {
+      Alert.alert("Error", "No se pudo actualizar el nombre.");
+      return;
+    }
     setEditName(false);
     Alert.alert("Listo", "Nombre actualizado.");
   };
 
-  const handleSaveSurname = () => {
+  const handleSaveSurname = async () => {
     const trimmed = surname.trim();
     if (!trimmed) return;
     if (trimmed === user.surname) {
       setEditSurname(false);
       return;
     }
-    updateUser({ surname: trimmed });
+    try {
+      await clientesService.update(user.id, { surname: trimmed });
+      updateUser({ surname: trimmed });
+    } catch {
+      Alert.alert("Error", "No se pudo actualizar el apellido.");
+      return;
+    }
     setEditSurname(false);
     Alert.alert("Listo", "Apellido actualizado.");
   };
 
-  const handleSaveNickname = () => {
+  const handleSaveNickname = async () => {
     const trimmed = displayName.trim();
     if (!trimmed) return;
     if (trimmed === (user.displayName ?? user.name)) {
       setEditNickname(false);
       return;
     }
-    updateUser({ displayName: trimmed });
+    try {
+      await clientesService.update(user.id, { displayName: trimmed });
+      updateUser({ displayName: trimmed });
+    } catch {
+      Alert.alert("Error", "No se pudo actualizar el nickname.");
+      return;
+    }
     setEditNickname(false);
     Alert.alert("Listo", "Nickname actualizado.");
   };
 
-  const handleAvatarEdit = () => {
-    Alert.alert("Editar avatar", "Funcionalidad pendiente.");
+  const handleAvatarEdit = async () => {
+    //imagepicker se instala para que salga el menu ese de eligir imagen
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    //si se puede acceder a las fotos se abre el menu
+    if (status !== "granted") {
+      Alert.alert("Permiso requerido", "Se necesita acceso a tus fotos para cambiar el avatar.");
+      return;
+    }
+
+    //abre el menu y definimos las configuraciones
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    //si se da a cancelar pues no hace nada
+    if (result.canceled) return;
+
+    //pilla el uri de la imagen 
+    const uri = result.assets?.[0]?.uri;
+    if (!uri) return;
+
+    // actualiza store
+    updateUser({ avatar: uri });
+
+    Alert.alert("Listo", "Avatar actualizado.");
   };
+
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-        Mi perfil
-      </Text>
+      <View style={styles.headerRow}>
+        <Pressable onPress={() => router.replace("/home")} style={styles.backButton}>
+          <Feather name="arrow-left" size={20} color={theme.colors.textPrimary} />
+        </Pressable>
+        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+          Mi perfil
+        </Text>
+      </View>
       <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
         Edita tus datos personales
       </Text>
 
+      {/*editar / mostrar avatar , ponemos un presable para que se pueda editar*/}
       <View style={styles.avatarRow}>
         <Pressable style={styles.avatarButton} onPress={handleAvatarEdit}>
           <Image
             source={{
+              //si el usuario no tiene avatar , le ponemos uno predefinido osea si es null es igual a la ruta que pone ahi
               uri:
                 user.avatar ??
                 "https://cdn-icons-png.flaticon.com/512/149/149071.png",
@@ -117,6 +176,7 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      {/*editar / mostrar nombre*/}
       <View style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
         <View style={styles.fieldRow}>
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Nombre</Text>
@@ -136,8 +196,10 @@ export default function ProfileScreen() {
           </Text>
         )}
 
+
         <View style={{ marginTop: 14 }} />
 
+        {/*editar / mostrar apellido*/}
         <View style={styles.fieldRow}>
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
             Apellidos
@@ -160,8 +222,10 @@ export default function ProfileScreen() {
           </Text>
         )}
 
+
         <View style={{ marginTop: 14 }} />
 
+        {/*editar / mostrar nickname*/}
         <View style={styles.fieldRow}>
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
             Nickname
@@ -184,7 +248,9 @@ export default function ProfileScreen() {
           </Text>
         )}
 
+
         <View style={{ marginTop: 14 }} />
+
 
         <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
           Correo
@@ -195,11 +261,28 @@ export default function ProfileScreen() {
       </View>
 
       <ButtonRectangular
-        text="Ir a Preferencias"
-        colorBG={theme.colors.accent}
+        text="Preferencias"
+        colorBG={theme.colors.primary}
         colorTxt={theme.colors.primaryContrast}
+        icon={{type: "feather" , name: "settings"}}
         onPressed={() => router.push("/preferences")}
       />
+
+      <View style={{ marginTop: 14 }} />
+
+
+      <ButtonRectangular
+        text="Logout"
+        colorBG={theme.colors.background}
+        colorBorder={theme.colors.error}
+        colorTxt={theme.colors.error}
+        icon={{type: "feather" , name: "log-out"}}
+        colorIcon={theme.colors.error}
+        onPressed={logout}
+
+      />
+      
+
     </View>
   );
 }

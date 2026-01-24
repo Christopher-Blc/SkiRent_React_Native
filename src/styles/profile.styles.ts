@@ -14,6 +14,18 @@ export const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 16,
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  backButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   card: {
     borderRadius: 16,
     padding: 16,

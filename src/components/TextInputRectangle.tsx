@@ -93,7 +93,8 @@ export const TextInputRectangle = ({
           backgroundColor: resolvedBgColor,
         },
       ]}
-      contentStyle={{ color: textColor }} 
+      textColor={resolvedTextColor}                 
+      contentStyle={{ color: resolvedTextColor }} 
       theme={{ roundness: 16 }}
       left={
         iconLeft ? (

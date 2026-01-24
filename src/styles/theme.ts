@@ -16,6 +16,8 @@ export type Theme = {
     tabBarInactive: string;
     header: string;
     headerText: string;
+    error: string,
+
   };
 };
 
@@ -35,6 +37,7 @@ export const lightTheme: Theme = {
     tabBarInactive: "#888888",
     header: "#002374ff",
     headerText: "#ffffff",
+    error: "#ff0000",
   },
 };
 
@@ -54,6 +57,8 @@ export const darkTheme: Theme = {
     tabBarInactive: "#94a3b8",
     header: "#0b1220",
     headerText: "#e2e8f0",
+    error: "#ff0000",
+
   },
 };
 

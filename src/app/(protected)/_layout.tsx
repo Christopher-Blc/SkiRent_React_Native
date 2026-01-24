@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import { router, Tabs } from 'expo-router';
+import { router, Tabs, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, Pressable, View, Image } from 'react-native';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,6 +17,11 @@ export default function AppLayout() {
   const { isAuthenticated, isLoading, logout } = useAuth();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
+  const segments = useSegments();
+  const isInClientes = segments.includes("clientes");
+  const isClienteDetalle = segments.includes("[id]");
+  const esAdmin = String(user?.RolId) === "2";
+
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -42,6 +47,20 @@ export default function AppLayout() {
       tabBarStyle: { backgroundColor: theme.colors.tabBar },
       tabBarActiveTintColor: theme.colors.headerText,
       tabBarInactiveTintColor: theme.colors.tabBarInactive,
+      headerTitle: isInClientes ? "Clientes" : "Inicio",
+      headerLeft: () => {
+        if (!isInClientes) return null;
+        return (
+          <Pressable
+            onPress={() =>
+              router.replace(isClienteDetalle ? "/clientes" : "/home")
+            }
+            style={{ paddingHorizontal: 8 }}
+          >
+            <Feather name="arrow-left" size={20} color={theme.colors.headerText} />
+          </Pressable>
+        );
+      },
       headerRight: () => (
         <Pressable
           onPress={() => {
@@ -72,15 +91,31 @@ export default function AppLayout() {
 
 
       {/* CLIENTES → INDEX */}
-      <Tabs.Screen
-        name="(admin)/clientes"
-        options={{
-          title: 'Clientes',
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="users" color={color} size={size} />
-          ),
-        }}
-      />
+      {user?.RolId === 2 ? (
+        <Tabs.Screen
+          name="(admin)/clientes"
+          options={{
+            title: "Clientes",
+            tabBarIcon: ({ color, size }) => (
+              <Feather name="users" color={color} size={size} />
+            ),
+          }}
+        />
+      ) : null}
+
+
+
+    <Tabs.Screen
+      name="(admin)"
+      options={{
+        title: "Admin",
+        tabBarLabel: "Admin",
+        tabBarIcon: ({ color, size }) => (
+          <Feather name="shield" color={color} size={size} />
+        ),
+        href: esAdmin ? undefined : null, // 👈 si no es admin, NO aparece
+      }}
+    />
 
       {/* para esconder del tab que sino aparecen abajo y no quiero eso  */}
       <Tabs.Screen
@@ -90,6 +125,11 @@ export default function AppLayout() {
 
       <Tabs.Screen
         name="preferences"
+        options={{ href: null, headerShown: false }}
+      />
+
+      <Tabs.Screen
+        name="(admin)/preferences"
         options={{ href: null, headerShown: false }}
       />
 

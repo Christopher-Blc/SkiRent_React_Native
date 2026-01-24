@@ -14,7 +14,7 @@ export default function PreferencesScreen() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
+        <Pressable style={styles.backButton} onPress={() => router.replace("/profile")}>
           <Feather name="arrow-left" size={20} color={theme.colors.textPrimary} />
         </Pressable>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Preferencias</Text>

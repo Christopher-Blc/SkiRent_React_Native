@@ -44,6 +44,15 @@ export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
         </Text>
       </View>
 
+      <View style={styles.infoRow}>
+        <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+          Nickname
+        </Text>
+        <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
+          {cliente.displayName}
+        </Text>
+      </View>
+
       <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>
         Últimos pedidos
       </Text>

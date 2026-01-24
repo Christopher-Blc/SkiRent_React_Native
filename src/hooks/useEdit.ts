@@ -12,6 +12,7 @@ const telefonoRegex = /^\+?\d{7,15}$/;
 const clienteSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
   surname: z.string().min(1, "Los apellidos son obligatorios"),
+  displayName: z.string().min(1, "El nickname es obligatorio"),
   email: z.string().min(1, "El email es obligatorio").email("Email no válido"),
   phoneNumber: z
     .string()
@@ -59,6 +60,7 @@ export function useEdit() {
   // campos
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
@@ -72,6 +74,7 @@ export function useEdit() {
     if (!cliente) return;
     setName(cliente.name);
     setSurname(cliente.surname);
+    setDisplayName(cliente.displayName ?? cliente.name);
     setEmail(cliente.email);
     setPhoneNumber(cliente.phoneNumber);
   }, [cliente]);
@@ -81,6 +84,7 @@ export function useEdit() {
 
     setName(cliente.name);
     setSurname(cliente.surname);
+    setDisplayName(cliente.displayName ?? cliente.name);
     setEmail(cliente.email);
     setPhoneNumber(cliente.phoneNumber);
 
@@ -122,6 +126,7 @@ export function useEdit() {
     const result = clienteSchema.safeParse({
       name,
       surname,
+      displayName,
       email,
       phoneNumber,
     });
@@ -169,6 +174,8 @@ export function useEdit() {
     setName,
     surname,
     setSurname,
+    displayName,
+    setDisplayName,
     email,
     setEmail,
     phoneNumber,

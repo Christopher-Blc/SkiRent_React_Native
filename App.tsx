@@ -1,12 +1,10 @@
 import { StyleSheet, Text, View, TouchableOpacity, Button } from 'react-native';
 import { ButtonRectangular } from './src/components/ButtonRectangular';
-import { LoginCard } from './src/components/LoginCard';
 
 
 export default function App() {
   return (
     <View style={styles.screen}>
-      <LoginCard></LoginCard>
     </View>
   );
 }

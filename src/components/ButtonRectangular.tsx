@@ -40,7 +40,7 @@ export const ButtonRectangular = ({
           backgroundColor: colorBG,
           width: widthButton,
           borderColor: hasBorder ? colorBorder : "transparent",
-          borderWidth: hasBorder ? 1 : 0,
+          borderWidth: hasBorder ? 1 : 0,          
         },
       ]}
     >

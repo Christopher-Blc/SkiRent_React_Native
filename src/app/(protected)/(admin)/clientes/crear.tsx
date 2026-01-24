@@ -18,6 +18,7 @@ const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
   surname: z.string().min(1, "Los apellidos son obligatorios"),
+  displayName: z.string().min(1, "El nickname es obligatorio"),
   email: z.string().min(1, "El email es obligatorio").email("Email no válido"),
   phoneNumber: z
     .string()
@@ -46,6 +47,7 @@ export default function CrearClienteScreen() {
     defaultValues: {
       name: "",
       surname: "",
+      displayName: "",
       email: "",
       phoneNumber: "",
       password: "",
@@ -59,14 +61,17 @@ export default function CrearClienteScreen() {
     try {
       setGuardando(true);
 
+      const nickname = data.displayName.trim();
+
       await clientesService.create({
         name: data.name.trim(),
-        RolId: 0,
+        RolId: 1,
         surname: data.surname.trim(),
         email: data.email.trim(),
         phoneNumber: data.phoneNumber.trim(),
         pedidos: [],
-        password: data.password.trim()
+        password: data.password.trim(),
+        displayName: nickname,
       });
 
       Alert.alert("Cliente creado", "Se ha creado correctamente", [
@@ -145,6 +150,28 @@ export default function CrearClienteScreen() {
 
             <Controller
               control={control}
+              name="displayName"
+              render={({ field: { value, onChange } }) => (
+                <>
+                  <TextInputRectangle
+                    placeholder="Nickname"
+                    iconLeft="tag"
+                    iconRight="edit-2"
+                    value={value}
+                    onChangeText={onChange}
+                    autoCapitalize="words"
+                  />
+                  {errors.displayName?.message ? (
+                    <Text style={[styles.errorText, { color: "#ef4444" }]}>
+                      {errors.displayName.message}
+                    </Text>
+                  ) : null}
+                </>
+              )}
+            />
+
+            <Controller
+              control={control}
               name="email"
               render={({ field: { value, onChange } }) => (
                 <>
@@ -212,18 +239,18 @@ export default function CrearClienteScreen() {
             <View style={styles.buttons}>
               <ButtonRectangular
                 text="Cancelar"
-                icon="x"
+                icon={{ type: "feather", name: "x" }}
                 colorBG={theme.colors.surface}
                 colorTxt={theme.colors.textPrimary}
                 colorBorder={theme.colors.border}
                 colorIcon={theme.colors.textPrimary}
                 widthButton={"48%"}
-                onPressed={() => router.replace("clientes/")}
+                onPressed={() => router.replace("/clientes")}
               />
 
               <ButtonRectangular
                 text={guardando || isSubmitting ? "Guardando..." : "Guardar"}
-                icon="check"
+                icon={{ type: "feather", name: "check" }}
                 colorBG={theme.colors.primary}
                 colorTxt={theme.colors.primaryContrast}
                 colorIcon={theme.colors.primaryContrast}

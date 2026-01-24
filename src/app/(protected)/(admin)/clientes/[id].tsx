@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, Modal, Pressable, Animated, StyleSheet, View } from "react-native";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { Button, Dialog, Portal } from "react-native-paper";
 import { TextInputRectangle } from "@/components/TextInputRectangle";
@@ -9,8 +9,10 @@ import { ClienteCard } from "@/components/EditClientCard";
 import { useEdit } from "@/hooks/useEdit";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
+import { Feather } from "@expo/vector-icons";
 
 export default function ClienteDetalle() {
+  const router = useRouter();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   //constantes que vienen del hook useEdit y controlan toda la logica de editar/eliminar cliente
@@ -27,6 +29,8 @@ export default function ClienteDetalle() {
     setName,
     surname,
     setSurname,
+    displayName,
+    setDisplayName,
     email,
     setEmail,
     phoneNumber,
@@ -57,7 +61,20 @@ export default function ClienteDetalle() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Cliente " + name, headerTitleAlign: "center" }} />
+      <Stack.Screen
+        options={{
+          title: "Cliente " + name,
+          headerTitleAlign: "center",
+          headerLeft: () => (
+            <Pressable
+              onPress={() => router.replace("/clientes")}
+              style={{ paddingHorizontal: 8 }}
+            >
+              <Feather name="arrow-left" size={20} color={theme.colors.headerText} />
+            </Pressable>
+          ),
+        }}
+      />
 
       {/* Confirmar eliminar popup*/}
       <Portal>
@@ -108,6 +125,13 @@ export default function ClienteDetalle() {
               <View style={{ marginTop: 14 }} />
 
               <TextInputRectangle placeholder="Apellidos" value={surname} onChangeText={setSurname} />
+              <View style={{ marginTop: 14 }} />
+
+              <TextInputRectangle
+                placeholder="Nickname"
+                value={displayName}
+                onChangeText={setDisplayName}
+              />
               <View style={{ marginTop: 14 }} />
 
               <TextInputRectangle
