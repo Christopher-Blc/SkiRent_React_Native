@@ -16,6 +16,7 @@ interface ButtonRectangularProps {
   colorIcon?: string;
   iconSize?: number;
   widthButton?: number | `${number}%`;
+  heightButton?: number | `${number}%`;
   onPressed?: () => void;
 }
 
@@ -28,9 +29,14 @@ export const ButtonRectangular = ({
   colorIcon = "#ffffff",
   iconSize = 20,
   widthButton = "100%",
+  heightButton = 52,
   onPressed,
 }: ButtonRectangularProps) => {
   const hasBorder = !!colorBorder;
+
+  const h = typeof heightButton === "number" ? heightButton : 62;
+  const iconBoxSize = Math.max(36, Math.min(56, h - 18));
+  const iconRadius = Math.max(8, Math.min(12, iconBoxSize * 0.2));
 
   return (
     <Pressable
@@ -40,6 +46,7 @@ export const ButtonRectangular = ({
         {
           backgroundColor: colorBG,
           width: widthButton,
+          height: heightButton,
           borderColor: hasBorder ? colorBorder : "transparent",
           borderWidth: hasBorder ? 1 : 0,
           opacity: pressed ? 0.9 : 1,
@@ -53,7 +60,12 @@ export const ButtonRectangular = ({
             styles.iconBlock,
             {
               marginLeft: -10,
-              backgroundColor: colorBorder ? colorBorder : "rgba(255,255,255,0.18)",
+              backgroundColor: colorBorder
+                ? colorBorder
+                : "rgba(255,255,255,0.18)",
+              width: iconBoxSize,
+              height: iconBoxSize,
+              borderRadius: iconRadius,
             },
           ]}
         >
@@ -65,32 +77,40 @@ export const ButtonRectangular = ({
         </View>
       ) : null}
 
-      <Text style={[styles.buttonText, { color: colorTxt }]}>{text}</Text>
+      <View style={styles.textWrap}>
+        <Text style={[styles.buttonText, { color: colorTxt }]}>{text}</Text>
+      </View>
+
+      {icon ? <View style={styles.rightSpacer} /> : null}
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    height: 62,
     borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     paddingHorizontal: 20,
-    gap: 12,
   },
   iconBlock: {
-    width: 44,
-    height: 44,
-    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
+  },
+  textWrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rightSpacer: {
+    width: 44,
   },
   buttonText: {
     fontSize: 15,
     fontWeight: "700",
     fontFamily: font.display,
     letterSpacing: 0.3,
+    textAlign: "center",
   },
 });
