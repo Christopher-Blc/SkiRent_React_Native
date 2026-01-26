@@ -21,6 +21,7 @@ export default function ProfileScreen() {
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const { logout } = useAuth();
+  const pedidosCount = user?.pedidos?.length ?? 0;
 
 
   const [name, setName] = useState(user?.name ?? "");
@@ -139,7 +140,13 @@ export default function ProfileScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.headerRow}>
-        <Pressable onPress={() => router.replace("/home")} style={styles.backButton}>
+        <Pressable
+          onPress={() => router.replace("/home")}
+          style={[
+            styles.backButton,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderWidth: 1 },
+          ]}
+        >
           <Feather name="arrow-left" size={20} color={theme.colors.textPrimary} />
         </Pressable>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
@@ -172,6 +179,35 @@ export default function ProfileScreen() {
           </Text>
           <Text style={[styles.roleText, { color: theme.colors.textSecondary }]}>
             {roles.find((role) => role.id === user.RolId)?.name ?? "NORMAL"}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.statsRow}>
+        <View
+          style={[
+            styles.statPill,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]}
+        >
+          <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
+            Pedidos
+          </Text>
+          <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
+            {pedidosCount}
+          </Text>
+        </View>
+        <View
+          style={[
+            styles.statPill,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]}
+        >
+          <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
+            Estado
+          </Text>
+          <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
+            Activo
           </Text>
         </View>
       </View>
@@ -276,8 +312,9 @@ export default function ProfileScreen() {
         colorBG={theme.colors.background}
         colorBorder={theme.colors.error}
         colorTxt={theme.colors.error}
-        icon={{type: "feather" , name: "log-out"}}
-        colorIcon={theme.colors.error}
+
+        icon={{ type: "feather", name: "log-out" }}
+        colorIcon="#ffffff"
         onPressed={logout}
 
       />

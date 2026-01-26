@@ -4,6 +4,7 @@ import { TextInput } from "react-native-paper";
 import { Feather } from "@expo/vector-icons";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
+import { font } from "@/styles/typography";
 
 interface TextInputRectangleProps {
   placeholder?: string;
@@ -56,7 +57,7 @@ export const TextInputRectangle = ({
   bgColor,
 
   width = "100%",
-  height = 60,
+  height = 52,
 
   onChangeText,
   value,
@@ -93,9 +94,9 @@ export const TextInputRectangle = ({
           backgroundColor: resolvedBgColor,
         },
       ]}
-      textColor={resolvedTextColor}                 
-      contentStyle={{ color: resolvedTextColor }} 
-      theme={{ roundness: 16 }}
+      textColor={resolvedTextColor}
+      contentStyle={{ color: resolvedTextColor, paddingHorizontal: 12 }}
+      theme={{ roundness: 14 }}
       left={
         iconLeft ? (
           <TextInput.Icon
@@ -140,9 +141,9 @@ export const TextInputRectangle = ({
 
 const styles = StyleSheet.create({
   input: {
-    fontSize: 16,
-    borderRadius: 30,
+    fontSize: 15,
+    borderRadius: 14,
     paddingLeft: 0,
-    outlineColor: "#d0d7e2",
+    fontFamily: font.body,
   },
 });

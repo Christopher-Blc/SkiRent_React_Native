@@ -6,7 +6,7 @@ import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 
-export default function Home() {
+export default function Pedidos() {
   const user = useUserStore((s) => s.user);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
@@ -21,13 +21,13 @@ export default function Home() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text style={[styles.kicker, { color: theme.colors.textSecondary }]}>
-          Panel principal
+          Zona cliente
         </Text>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-          Bienvenido, {nombre}
+          Pedidos de {nombre}
         </Text>
         <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-          Gestiona tu cuenta y accede a tus módulos desde aquí
+          Estado y resumen de tus solicitudes recientes
         </Text>
       </View>
 
@@ -45,7 +45,7 @@ export default function Home() {
             {pedidosCount}
           </Text>
           <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-            Pedidos
+            Total
           </Text>
         </View>
 
@@ -56,13 +56,13 @@ export default function Home() {
           ]}
         >
           <View style={[styles.statIcon, { backgroundColor: theme.colors.surface }]}>
-            <Feather name="shield" size={18} color={theme.colors.primary} />
+            <Feather name="activity" size={18} color={theme.colors.primary} />
           </View>
           <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
-            {roleName}
+            En curso
           </Text>
           <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-            Rol
+            Estado
           </Text>
         </View>
       </View>
@@ -74,8 +74,17 @@ export default function Home() {
         ]}
       >
         <Text style={[styles.cardTitle, { color: theme.colors.textPrimary }]}>
-          Detalles de la cuenta
+          Información de cuenta
         </Text>
+
+        <View style={[styles.row, { borderTopColor: theme.colors.border }]}>
+          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+            Rol
+          </Text>
+          <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
+            {roleName}
+          </Text>
+        </View>
 
         <View style={[styles.row, { borderTopColor: theme.colors.border }]}>
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
@@ -83,15 +92,6 @@ export default function Home() {
           </Text>
           <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
             {user?.email ?? "-"}
-          </Text>
-        </View>
-
-        <View style={[styles.row, { borderTopColor: theme.colors.border }]}>
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Estado
-          </Text>
-          <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
-            Cuenta activa
           </Text>
         </View>
       </View>
@@ -147,6 +147,24 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    borderTopWidth: 1,
+  },
+
+  label: {
+    fontSize: 13,
+    fontFamily: font.body,
+  },
+
+  value: {
+    fontSize: 13,
+    fontWeight: "700",
+    fontFamily: font.display,
+  },
+
   statsRow: {
     flexDirection: "row",
     gap: 12,
@@ -174,23 +192,5 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 12,
     fontFamily: font.body,
-  },
-
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    borderTopWidth: 1,
-  },
-
-  label: {
-    fontSize: 13,
-    fontFamily: font.body,
-  },
-
-  value: {
-    fontSize: 13,
-    fontWeight: "700",
-    fontFamily: font.display,
   },
 });

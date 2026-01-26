@@ -1,18 +1,22 @@
 import { StyleSheet } from "react-native";
+import { font } from "@/styles/typography";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 22,
+    paddingTop: 44,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "700",
+    fontSize: 24,
+    fontWeight: "800",
+    fontFamily: font.display,
   },
   subtitle: {
     fontSize: 14,
     marginTop: 4,
     marginBottom: 16,
+    fontFamily: font.body,
   },
   headerRow: {
     flexDirection: "row",
@@ -27,10 +31,15 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   card: {
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 20,
+    padding: 18,
     marginBottom: 18,
     borderWidth: 1,
+    shadowColor: "#0f172a",
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 2,
   },
   fieldRow: {
     flexDirection: "row",
@@ -38,11 +47,15 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   label: {
-    fontSize: 14,
+    fontSize: 12,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+    fontFamily: font.display,
     marginBottom: 6,
   },
   value: {
     fontSize: 16,
+    fontFamily: font.body,
     marginBottom: 12,
   },
   avatarRow: {
@@ -50,6 +63,32 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     marginBottom: 18,
+  },
+  statsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 16,
+  },
+  statPill: {
+    flex: 1,
+    borderRadius: 999,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  statLabel: {
+    fontSize: 12,
+    fontFamily: font.body,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
+  statValue: {
+    fontSize: 13,
+    fontWeight: "800",
+    fontFamily: font.display,
   },
   avatarButton: {
     position: "relative",
@@ -71,11 +110,13 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
   },
   nameText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
+    fontFamily: font.display,
   },
   roleText: {
     fontSize: 12,
     marginTop: 2,
+    fontFamily: font.body,
   },
 })

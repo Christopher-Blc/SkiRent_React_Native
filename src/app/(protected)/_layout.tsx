@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from "@/store/userStore";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
+import { font } from "@/styles/typography";
 
 
 
@@ -43,10 +44,21 @@ export default function AppLayout() {
       headerShown: true,
       headerStyle: { backgroundColor: theme.colors.header },
       headerTintColor: theme.colors.headerText,
+      headerTitleStyle: {
+        fontFamily: font.display,
+        fontWeight: "800",
+        letterSpacing: 0.2,
+      },
+      headerShadowVisible: false,
 
-      tabBarStyle: { backgroundColor: theme.colors.tabBar },
+      tabBarStyle: {
+        backgroundColor: theme.colors.tabBar,
+        borderTopColor: theme.colors.border,
+        borderTopWidth: 1,
+      },
       tabBarActiveTintColor: theme.colors.headerText,
       tabBarInactiveTintColor: theme.colors.tabBarInactive,
+      tabBarLabelStyle: { fontFamily: font.body, fontSize: 12 },
       headerTitle: isInClientes ? "Clientes" : "Inicio",
       headerLeft: () => {
         if (!isInClientes) return null;

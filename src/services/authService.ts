@@ -49,6 +49,16 @@ export const authService = {
       throw new AuthError("PASSWORD_INVALID", "La contrasena no es correcta");
     }
 
+    const nickname = `${usuario.name} ${usuario.surname}`.trim();
+    if (usuario.displayName !== nickname) {
+      const actualizado = await clientesService.update(usuario.id, {
+        displayName: nickname,
+      });
+      if (actualizado) {
+        usuario.displayName = actualizado.displayName;
+      }
+    }
+
     const session: Session = {
       userId: usuario.id,
       token: `mock-token-${usuario.id}-${Date.now()}`,

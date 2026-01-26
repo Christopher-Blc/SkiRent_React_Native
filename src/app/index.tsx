@@ -36,7 +36,12 @@ export default function Login() {
       <View style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
 
         {/* Top Icon */}
-        <View style={[styles.lockCircle, { backgroundColor: theme.colors.surface }]}>
+        <View
+          style={[
+            styles.lockCircle,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]}
+        >
           <Feather name="lock" size={34} color={theme.colors.primary} />
         </View>
 
@@ -47,6 +52,13 @@ export default function Login() {
         <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
           Introduce tus credenciales para continuar
         </Text>
+
+        <View style={styles.infoRow}>
+          <Feather name="shield" size={14} color={theme.colors.primary} />
+          <Text style={[styles.infoText, { color: theme.colors.textSecondary }]}>
+            Acceso seguro y cifrado
+          </Text>
+        </View>
 
         {/* Email label */}
         <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
@@ -60,7 +72,7 @@ export default function Login() {
         />
 
         {emailError !== "" && (
-          <Text style={{ color: "red", alignSelf: "flex-start" }}>
+          <Text style={{ color: theme.colors.error, alignSelf: "flex-start" }}>
             {emailError}
           </Text>
         )}
@@ -83,7 +95,7 @@ export default function Login() {
         />
 
         {passwordError !== "" && (
-          <Text style={{ color: "red", alignSelf: "flex-start" }}>
+          <Text style={{ color: theme.colors.error, alignSelf: "flex-start" }}>
             {passwordError}
           </Text>
         )}

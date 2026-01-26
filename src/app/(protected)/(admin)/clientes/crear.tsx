@@ -10,6 +10,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
+import { font } from "@/styles/typography";
 
 const telefonoRegex = /^\+?\d{7,15}$/;
 const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -269,19 +270,25 @@ export default function CrearClienteScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 20,
     justifyContent: "center",
     alignContent: "center",
   },
   card: {
-    padding: 16,
-    borderRadius: 16,
+    padding: 20,
+    borderRadius: 22,
     borderWidth: 1,
+    shadowColor: "#0f172a",
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 2,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 14,
+    fontSize: 22,
+    fontWeight: "800",
+    fontFamily: font.display,
+    marginBottom: 16,
     alignSelf: "center",
   },
   form: {
@@ -296,5 +303,6 @@ const styles = StyleSheet.create({
   errorText: {
     marginLeft: 6,
     marginTop: 4,
+    fontFamily: font.body,
   },
 });

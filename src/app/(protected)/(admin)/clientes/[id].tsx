@@ -10,6 +10,7 @@ import { useEdit } from "@/hooks/useEdit";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { Feather } from "@expo/vector-icons";
+import { font } from "@/styles/typography";
 
 export default function ClienteDetalle() {
   const router = useRouter();
@@ -79,9 +80,13 @@ export default function ClienteDetalle() {
       {/* Confirmar eliminar popup*/}
       <Portal>
         <Dialog visible={confirmDeleteVisible} onDismiss={closeConfirmDelete}>
-          <Dialog.Title>Eliminar cliente</Dialog.Title>
+          <Dialog.Title style={[styles.dialogTitle, { color: theme.colors.textPrimary }]}>
+            Eliminar cliente
+          </Dialog.Title>
           <Dialog.Content>
-            <Text>Seguro que quieres eliminar este cliente</Text>
+            <Text style={[styles.dialogText, { color: theme.colors.textSecondary }]}>
+              Seguro que quieres eliminar este cliente
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={closeConfirmDelete}>Cancelar</Button>
@@ -190,22 +195,35 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    padding: 16,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
     maxHeight: "80%",
     borderWidth: 1,
+    shadowColor: "#0f172a",
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: -6 },
+    elevation: 8,
   },
   handle: {
     alignSelf: "center",
-    width: 40,
+    width: 44,
     height: 5,
     borderRadius: 10,
     marginBottom: 10,
   },
   sheetTitle: {
-    fontWeight: "700",
-    marginBottom: 10,
+    fontWeight: "800",
+    marginBottom: 12,
     fontSize: 16,
+    fontFamily: font.display,
+  },
+  dialogTitle: {
+    fontFamily: font.display,
+    fontWeight: "800",
+  },
+  dialogText: {
+    fontFamily: font.body,
   },
 });

@@ -2,37 +2,71 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
+import { font } from "@/styles/typography";
 
 interface ClientsCardProps {
   name: string;
   surname: string;
   email: string;
   phoneNumber: string;
+  pedidosCount?: number;
 }
 
-export const ClientsCard = ({ name, surname, email, phoneNumber }: ClientsCardProps) => {
+const getInitials = (name: string, surname: string) =>
+  `${name?.[0] ?? ""}${surname?.[0] ?? ""}`.toUpperCase();
+
+export const ClientsCard = ({
+  name,
+  surname,
+  email,
+  phoneNumber,
+  pedidosCount = 0,
+}: ClientsCardProps) => {
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.card }]}>
-      <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-        {name} {surname}
-      </Text>
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: theme.colors.card, borderColor: theme.colors.border },
+      ]}
+    >
+      <View style={styles.row}>
+        <View
+          style={[
+            styles.avatar,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]}
+        >
+          <Text style={[styles.avatarText, { color: theme.colors.primary }]}>
+            {getInitials(name, surname)}
+          </Text>
+        </View>
 
-      <Text style={[styles.text, { color: theme.colors.textSecondary }]}>
-        Email:{" "}
-        <Text style={[styles.content, { color: theme.colors.accent }]}>
-          {email}
-        </Text>
-      </Text>
+        <View style={styles.body}>
+          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+            {name} {surname}
+          </Text>
 
-      <Text style={[styles.text, { color: theme.colors.textSecondary }]}>
-        Teléfono:{" "}
-        <Text style={[styles.content, { color: theme.colors.accent }]}>
-          {phoneNumber}
-        </Text>
-      </Text>
+          <Text style={[styles.text, { color: theme.colors.textSecondary }]}>
+            {email}
+          </Text>
+
+          <Text style={[styles.text, { color: theme.colors.textSecondary }]}>
+            {phoneNumber}
+          </Text>
+        </View>
+
+        <View style={styles.meta}>
+          <Text style={[styles.metaLabel, { color: theme.colors.textSecondary }]}>
+            Pedidos
+          </Text>
+          <Text style={[styles.metaValue, { color: theme.colors.textPrimary }]}>
+            {pedidosCount}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 };
@@ -40,27 +74,57 @@ export const ClientsCard = ({ name, surname, email, phoneNumber }: ClientsCardPr
 const styles = StyleSheet.create({
   card: {
     width: "100%",
-    padding: 20,
+    padding: 18,
     marginBottom: 12,
-    borderRadius: 14,
-    elevation: 4,
-
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
+    borderRadius: 18,
+    borderWidth: 1,
+    backgroundColor: "#fff",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  avatar: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+  },
+  avatarText: {
+    fontSize: 16,
+    fontWeight: "800",
+    fontFamily: font.display,
+    letterSpacing: 0.4,
+  },
+  body: {
+    flex: 1,
+  },
+  meta: {
+    alignItems: "flex-end",
+  },
+  metaLabel: {
+    fontSize: 11,
+    fontFamily: font.body,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  metaValue: {
+    fontSize: 16,
+    fontWeight: "800",
+    fontFamily: font.display,
   },
   title: {
-    fontSize: 19,
-    fontWeight: "600",
-    alignSelf: "center",
-    marginBottom: 16,
+    fontSize: 18,
+    fontWeight: "700",
+    fontFamily: font.display,
+    marginBottom: 2,
   },
   text: {
-    fontSize: 16,
-    marginBottom: 6,
-  },
-  content: {
-    fontWeight: "500",
+    fontSize: 14,
+    marginBottom: 2,
+    fontFamily: font.body,
   },
 });
