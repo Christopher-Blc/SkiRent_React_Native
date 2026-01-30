@@ -4,6 +4,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { z } from "zod";
 import { clientesService } from "@/services/clientesService";
 import { Cliente } from "@/types/Clients";
+import * as ImagePicker from "expo-image-picker";
+import { supabase } from "@/lib/supabase";
 
 const H = Dimensions.get("window").height;
 
@@ -23,15 +25,21 @@ const clienteSchema = z.object({
 export function useEdit() {
   // id desde la ruta
   const { id } = useLocalSearchParams();
-  const clientId = Number(id);
+  const clientId = Array.isArray(id) ? id[0] : id;
+  const clientIdStr = clientId ? String(clientId) : "";
 
   // data cliente
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [cargando, setCargando] = useState(true);
 
   const cargarCliente = async () => {
+    if (!clientIdStr) {
+      setCliente(null);
+      setCargando(false);
+      return;
+    }
     setCargando(true);
-    const c = await clientesService.getById(clientId);
+    const c = await clientesService.getById(clientIdStr);
     setCliente(c);
     setCargando(false);
   };
@@ -40,8 +48,15 @@ export function useEdit() {
     let mounted = true;
 
     (async () => {
+      if (!clientIdStr) {
+        if (mounted) {
+          setCliente(null);
+          setCargando(false);
+        }
+        return;
+      }
       setCargando(true);
-      const c = await clientesService.getById(clientId);
+      const c = await clientesService.getById(clientIdStr);
       if (mounted) {
         setCliente(c);
         setCargando(false);
@@ -51,7 +66,7 @@ export function useEdit() {
     return () => {
       mounted = false;
     };
-  }, [clientId]);
+  }, [clientIdStr]);
 
   // popup editar
   const [editar, setEditar] = useState(false);
@@ -63,6 +78,7 @@ export function useEdit() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   // confirmar eliminar
   const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
@@ -76,7 +92,7 @@ export function useEdit() {
     setSurname(cliente.surname);
     setDisplayName(cliente.displayName ?? cliente.name);
     setEmail(cliente.email);
-    setPhoneNumber(cliente.phoneNumber);
+    setPhoneNumber(cliente.phoneNumber ?? "");
   }, [cliente]);
 
   const abrirEditar = () => {
@@ -86,7 +102,7 @@ export function useEdit() {
     setSurname(cliente.surname);
     setDisplayName(cliente.displayName ?? cliente.name);
     setEmail(cliente.email);
-    setPhoneNumber(cliente.phoneNumber);
+    setPhoneNumber(cliente.phoneNumber ?? "");
 
     setEditar(true);
 
@@ -113,7 +129,8 @@ export function useEdit() {
   const confirmarEliminar = async () => {
     closeConfirmDelete();
     try {
-      await clientesService.remove(clientId);
+      if (!clientIdStr) return;
+      await clientesService.remove(clientIdStr);
       router.replace("/clientes");
     } catch {
       Alert.alert("Error", "No se pudo eliminar el cliente");
@@ -137,7 +154,8 @@ export function useEdit() {
     }
 
     try {
-      await clientesService.update(clientId, result.data);
+      if (!clientIdStr) return;
+      await clientesService.update(clientIdStr, result.data);
       cerrarEditar();
       await cargarCliente();
     } catch (e: any) {
@@ -155,8 +173,61 @@ export function useEdit() {
     }
   };
 
+  const cambiarAvatar = async () => {
+  if (!clientIdStr) return;
+
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (status !== "granted") {
+    Alert.alert("Permiso requerido", "Se necesita acceso a tus fotos para cambiar el avatar.");
+    return;
+  }
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.8,
+  });
+
+  if (result.canceled) return;
+
+  const uri = result.assets?.[0]?.uri;
+  if (!uri) return;
+
+  setAvatarUploading(true);
+  try {
+    const ext = uri.split(".").pop()?.toLowerCase() || "jpg";
+    const contentType =
+      ext === "png"
+        ? "image/png"
+        : ext === "webp"
+          ? "image/webp"
+          : "image/jpeg";
+
+    const filePath = `clientes/${clientIdStr}/avatar.${ext}`;
+
+    const resp = await fetch(uri);
+    const blob = await resp.blob();
+
+    const { error: uploadError } = await supabase.storage
+      .from("userData")
+      .upload(filePath, blob, { contentType, upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    await clientesService.update(clientIdStr, { avatar: filePath });
+    await cargarCliente();
+  } catch (e: any) {
+    const msg = e?.message || e?.error_description || "No se pudo subir la imagen";
+    Alert.alert("Error", msg);
+  } finally {
+    setAvatarUploading(false);
+  }
+};
+
+
   return {
-    clientId,
+    clientId: clientIdStr,
 
     // data
     cliente,
@@ -180,6 +251,7 @@ export function useEdit() {
     setEmail,
     phoneNumber,
     setPhoneNumber,
+    avatarUploading,
 
     // borrar
     confirmDeleteVisible,
@@ -190,5 +262,8 @@ export function useEdit() {
 
     // guardar
     guardar,
+
+    // avatar
+    cambiarAvatar,
   };
 }

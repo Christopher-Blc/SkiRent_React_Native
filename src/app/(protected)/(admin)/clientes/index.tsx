@@ -10,7 +10,7 @@ import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 
-
+//pantalla que muestra la lista de clientes
 export default function Clientes() {
   const [lista, setLista] = useState<Cliente[]>([]);
   const mode = useThemeStore((s) => s.mode);
@@ -65,7 +65,7 @@ export default function Clientes() {
                 name={item.name}
                 surname={item.surname}
                 email={item.email}
-                phoneNumber={item.phoneNumber}
+                phoneNumber={item.phoneNumber ?? ""}
                 pedidosCount={item.pedidos?.length ?? 0}
               />
             </Pressable>

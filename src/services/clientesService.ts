@@ -75,13 +75,17 @@ export const clientesService = {
   // IMPORTANTE:
   // - crear "usuario" (email/password) NO es aqui, eso es supabase.auth.signUp
   // - este create crea el PERFIL en public.clientes
-  // - necesitas pasar el uuid (auth.users.id)
-  async create(id: string, data: Omit<Cliente, "id">): Promise<Cliente> {
+  // - si no pasas id, se usa el default de la tabla (uuid)
+  async create(
+    data: Omit<Cliente, "id">,
+    id?: string
+  ): Promise<Cliente> {
     const payload = toDb(data);
+    const row = id ? { id, ...payload } : payload;
 
     const { data: inserted, error } = await supabase
       .from("clientes")
-      .insert([{ id, ...payload }])
+      .insert([row])
       .select(selectCliente)
       .single();
 

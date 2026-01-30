@@ -12,6 +12,7 @@ import { styles } from "@/styles/profile.styles";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from "@/lib/supabase";
 
 
 export default function ProfileScreen() {
@@ -22,6 +23,10 @@ export default function ProfileScreen() {
   const theme = getTheme(mode);
   const { logout } = useAuth();
   const pedidosCount = user?.pedidos?.length ?? 0;
+  const avatarUrl = user?.avatar
+  ? `${supabase.storage.from("userData").getPublicUrl(user.avatar).data.publicUrl}?t=${Date.now()}`
+  : null;
+  const avatarFallback = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
 
   const [name, setName] = useState(user?.name ?? "");
@@ -130,10 +135,36 @@ export default function ProfileScreen() {
     const uri = result.assets?.[0]?.uri;
     if (!uri) return;
 
-    // actualiza store
-    updateUser({ avatar: uri });
+    try {
+      const ext = uri.split(".").pop()?.toLowerCase() || "jpg";
+      const contentType =
+        ext === "png"
+          ? "image/png"
+          : ext === "webp"
+            ? "image/webp"
+            : "image/jpeg";
+      const filePath = `imagenes/${user.id}.${ext}`;
 
-    Alert.alert("Listo", "Avatar actualizado.");
+      const resp = await fetch(uri);
+      const arrayBuffer = await resp.arrayBuffer();
+
+      const { error: uploadError } = await supabase.storage
+        .from("userData")
+        .upload(filePath, arrayBuffer, {
+          contentType,
+          upsert: true,
+        });
+
+
+      if (uploadError) throw uploadError;
+
+      await clientesService.update(user.id, { avatar: filePath });
+      updateUser({ avatar: filePath });
+      Alert.alert("Listo", "Avatar actualizado.");
+    } catch (e: any) {
+      const msg = e?.message || e?.error_description || "No se pudo subir la imagen";
+      Alert.alert("Error", msg);
+    }
   };
 
 
@@ -163,9 +194,7 @@ export default function ProfileScreen() {
           <Image
             source={{
               //si el usuario no tiene avatar , le ponemos uno predefinido osea si es null es igual a la ruta que pone ahi
-              uri:
-                user.avatar ??
-                "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+              uri: avatarUrl || avatarFallback,
             }}
             style={styles.avatar}
           />

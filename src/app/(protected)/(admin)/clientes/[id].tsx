@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Modal, Pressable, Animated, StyleSheet, View } from "react-native";
+import { Text, Modal, Pressable, Animated, StyleSheet, View, Image } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { Button, Dialog, Portal } from "react-native-paper";
@@ -11,6 +11,7 @@ import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { Feather } from "@expo/vector-icons";
 import { font } from "@/styles/typography";
+import { supabase } from "@/lib/supabase";
 
 export default function ClienteDetalle() {
   const router = useRouter();
@@ -43,7 +44,13 @@ export default function ClienteDetalle() {
     eliminar,
 
     guardar,
+    cambiarAvatar,
+    avatarUploading,
   } = useEdit();
+
+  const avatarUrl = cliente?.avatar
+    ? supabase.storage.from("userData").getPublicUrl(cliente.avatar).data.publicUrl
+    : null;
 
   if (cargando) {
     return (
@@ -118,6 +125,30 @@ export default function ClienteDetalle() {
           <Text style={[styles.sheetTitle, { color: theme.colors.textPrimary }]}>
             Editar cliente
           </Text>
+
+          <View style={styles.avatarRow}>
+            <View
+              style={[
+                styles.avatarCircle,
+                { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+              ]}
+            >
+              {avatarUrl ? (
+                <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+              ) : (
+                <Text style={[styles.avatarInitials, { color: theme.colors.primary }]}>
+                  {(name?.[0] ?? "") + (surname?.[0] ?? "")}
+                </Text>
+              )}
+            </View>
+            <ButtonRectangular
+              text={avatarUploading ? "Subiendo..." : "Cambiar foto"}
+              colorBG={theme.colors.surface}
+              colorTxt={theme.colors.textPrimary}
+              colorBorder={theme.colors.border}
+              onPressed={cambiarAvatar}
+            />
+          </View>
 
           {/* el keyboard avoiding view para que no tape el teclado los inputs , cuanto mas offset mas sube el contenido */}
           <KeyboardAvoidingView
@@ -225,5 +256,28 @@ const styles = StyleSheet.create({
   },
   dialogText: {
     fontFamily: font.body,
+  },
+  avatarRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 14,
+  },
+  avatarCircle: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: 54,
+    height: 54,
+  },
+  avatarInitials: {
+    fontWeight: "800",
+    fontFamily: font.display,
   },
 });

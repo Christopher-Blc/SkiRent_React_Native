@@ -16,7 +16,8 @@ export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const initials = `${cliente.name?.[0] ?? ""}${cliente.surname?.[0] ?? ""}`.toUpperCase();
-  const pedidosCount = cliente.pedidos?.length ?? 0;
+  const pedidos = cliente.pedidos ?? [];
+  const pedidosCount = pedidos.length;
 
   return (
     <View
@@ -97,7 +98,7 @@ export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
       </Text>
 
       <View style={styles.orders}>
-        {cliente.pedidos.map((p, i) => (
+        {pedidos.map((p, i) => (
           <Text
             key={i}
             style={[styles.orderItem, { color: theme.colors.textSecondary }]}
@@ -105,7 +106,7 @@ export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
             • {p}
           </Text>
         ))}
-        {cliente.pedidos.length === 0 ? (
+        {pedidos.length === 0 ? (
           <Text style={[styles.orderItem, { color: theme.colors.textSecondary }]}>
             • Sin pedidos recientes
           </Text>

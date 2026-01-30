@@ -7,6 +7,7 @@ import { useUserStore } from "@/store/userStore";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
+import { supabase } from "@/lib/supabase";
 
 
 
@@ -14,7 +15,10 @@ export default function AppLayout() {
 
   //con eso podemos coger los datos del usuario desde el usuario almacenado en zustand
   const user = useUserStore((s) => s.user);
-  const avatarUrl = user?.avatar ?? "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  const avatarUrl = user?.avatar
+  ? `${supabase.storage.from("userData").getPublicUrl(user.avatar).data.publicUrl}?t=${Date.now()}`
+  : null;
+  const avatarFallback = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
   const { isAuthenticated, isLoading, logout } = useAuth();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
@@ -81,7 +85,7 @@ export default function AppLayout() {
           style={{ marginRight: 15 }}
         >
           <Image
-            source={{ uri: avatarUrl }}
+            source={{ uri: avatarUrl || avatarFallback }}
             style={{ width: 32, height: 32, borderRadius: 16 }}
           />
         </Pressable>
@@ -127,6 +131,11 @@ export default function AppLayout() {
         ),
         href: esAdmin ? undefined : null, // 👈 si no es admin, NO aparece
       }}
+    />
+
+    <Tabs.Screen
+      name="(customer)"
+      options={{ href: null }}
     />
 
       {/* para esconder del tab que sino aparecen abajo y no quiero eso  */}

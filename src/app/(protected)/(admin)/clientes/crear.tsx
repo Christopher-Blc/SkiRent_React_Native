@@ -13,9 +13,6 @@ import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 
 const telefonoRegex = /^\+?\d{7,15}$/;
-const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
   surname: z.string().min(1, "Los apellidos son obligatorios"),
@@ -25,10 +22,6 @@ const schema = z.object({
     .string()
     .min(1, "El teléfono es obligatorio")
     .regex(telefonoRegex, "Teléfono no válido"),
-  password: z
-    .string()
-    .min(1, "La contraseña es obligatorio")
-    .regex(passRegex, "Contraseña Invalida"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -51,7 +44,6 @@ export default function CrearClienteScreen() {
       displayName: "",
       email: "",
       phoneNumber: "",
-      password: "",
     },
   });
 
@@ -70,8 +62,6 @@ export default function CrearClienteScreen() {
         surname: data.surname.trim(),
         email: data.email.trim(),
         phoneNumber: data.phoneNumber.trim(),
-        pedidos: [],
-        password: data.password.trim(),
         displayName: nickname,
       });
 
@@ -209,28 +199,6 @@ export default function CrearClienteScreen() {
                   {errors.phoneNumber?.message ? (
                     <Text style={[styles.errorText, { color: "#ef4444" }]}>
                       {errors.phoneNumber.message}
-                    </Text>
-                  ) : null}
-                </>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { value, onChange } }) => (
-                <>
-                  <TextInputRectangle
-                    placeholder="Password"
-                    iconLeft="lock"
-                    iconRight="lock"
-                    value={value}
-                    onChangeText={onChange}
-                    autoCapitalize="none"
-                  />
-                  {errors.password?.message ? (
-                    <Text style={[styles.errorText, { color: "#ef4444" }]}>
-                      {errors.password.message}
                     </Text>
                   ) : null}
                 </>
