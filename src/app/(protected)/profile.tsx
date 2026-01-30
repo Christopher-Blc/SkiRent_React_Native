@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useUserStore } from "@/store/userStore";
-import { clientesService } from "@/services/userService";
+import { clientesService } from "@/services/clientesService";
 import { roles } from "@/types/Clients";
 import { TextInputRectangle } from "@/components/TextInputRectangle";
 import { ButtonRectangular } from "@/components/ButtonRectangular";

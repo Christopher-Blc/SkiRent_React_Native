@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useEffect, useMemo, useState, useCallback } from "react";
 import { authService, type Session } from "@/services/authService";
 import { useUserStore } from "@/store/userStore";
 
@@ -9,6 +9,7 @@ type AuthState = {
 
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshPerfil: () => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthState | null>(null);
@@ -16,53 +17,46 @@ export const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
-  const storedUser = useUserStore((state) => state.user);
-  const setUser = useUserStore((state) => state.setUser);
-  const clearUser = useUserStore((state) => state.clearUser);
+
+  const storedUser = useUserStore((s) => s.user);
+  const setUser = useUserStore((s) => s.setUser);
+  const clearUser = useUserStore((s) => s.clearUser);
+
+  const refreshPerfil = useCallback(async () => {
+    const perfil = await authService.getPerfilActual();
+    if (perfil) setUser(perfil);
+    else clearUser();
+  }, [setUser, clearUser]);
 
   useEffect(() => {
     const init = async () => {
       try {
-        // simular que este cargando durante 5 segundos
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-
         const restored = await authService.restoreSession();
-        if (!restored) {
-          return;
-        }
+        if (!restored) return;
 
         setSession(restored);
 
-        if (!storedUser || storedUser.id !== restored.userId) {
-          const perfil = await authService.getUserById(restored.userId);
-          if (perfil) setUser(perfil);
-          else {
-            await authService.logout();
-            setSession(null);
-            clearUser();
-          }
-        }
+        // carga perfil desde clientes
+        await refreshPerfil();
       } finally {
         setIsLoading(false);
       }
     };
 
     init();
-  }, [clearUser, setUser, storedUser]);
+  }, [refreshPerfil]);
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     const result = await authService.login(email, password);
     setSession(result.session);
-    if (!storedUser || storedUser.id !== result.user.id) {
-      setUser(result.user);
-    }
-  };
+    setUser(result.user);
+  }, [setUser]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await authService.logout();
     setSession(null);
-    // No limpiamos el user para mantener cambios persistidos (avatar/nickname).
-  };
+    clearUser(); // yo lo limpiaria ya que es bdd, no local
+  }, [clearUser]);
 
   const value = useMemo<AuthState>(
     () => ({
@@ -71,8 +65,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session,
       login,
       logout,
+      refreshPerfil,
     }),
-    [isLoading, session, login, logout]
+    [isLoading, session, login, logout, refreshPerfil]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

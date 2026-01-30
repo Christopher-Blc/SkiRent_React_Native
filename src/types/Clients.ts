@@ -12,15 +12,15 @@ export const roles: Role[] = [
 ];
 
 export interface Cliente {
-  id: number;
+  id: string;
   RolId: number;
   name: string;
   surname: string;
   email: string;
-  phoneNumber: string;
-  pedidos: string[];
-  password: string;
+  phoneNumber: string | null;
   displayName: string;
   avatar?: string | null;
+  pedidos?: string[];
+
 }
 

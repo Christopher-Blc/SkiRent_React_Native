@@ -1,5 +1,5 @@
 import { Product } from "../types/Product";
-
+//No es de mi proyecto , se actualizara cuando se implementn los productos.
 export const getProduct = async (): Promise<Product[]> => {
   const listaFakeProducts: Product[] = [
     {

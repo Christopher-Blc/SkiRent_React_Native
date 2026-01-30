@@ -4,7 +4,7 @@ import { Card } from "react-native-paper";
 import { router } from "expo-router";
 import { TextInputRectangle } from "@/components/TextInputRectangle";
 import { ButtonRectangular } from "@/components/ButtonRectangular";
-import { clientesService } from "@/services/userService";
+import { clientesService } from "@/services/clientesService";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";

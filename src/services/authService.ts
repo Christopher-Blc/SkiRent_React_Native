@@ -1,100 +1,51 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { clientesService } from "@/services/userService";
-import { Cliente } from "@/types/Clients";
+import { supabase } from "@/lib/supabase";
+import type { Cliente } from "@/types/Clients";
+import { clientesService } from "./clientesService";
 
 export type Session = {
-  userId: number;
-  token: string;
+  userId: string;
+  email: string;
 };
-
-export type AuthResult = {
-  session: Session;
-  user: Cliente;
-};
-
-export type AuthErrorCode =
-  | "EMAIL_INVALID"
-  | "USER_NOT_FOUND"
-  | "PASSWORD_INVALID";
-
-export class AuthError extends Error {
-  code: AuthErrorCode;
-
-  constructor(code: AuthErrorCode, message: string) {
-    super(message);
-    this.code = code;
-  }
-}
-
-const KEY_SESSION = "auth_session";
 
 export const authService = {
-  async login(email: string, password: string): Promise<AuthResult> {
-    const normalizedEmail = email.trim().toLowerCase();
+  async restoreSession(): Promise<Session | null> {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) return null;
 
-    if (!normalizedEmail.includes("@")) {
-      throw new AuthError("EMAIL_INVALID", "El email no es valido");
-    }
+    const s = data.session;
+    if (!s?.user) return null;
 
-    const clientes = await clientesService.list();
-    const usuario = clientes.find(
-      (c) => c.email.toLowerCase() === normalizedEmail
-    );
+    return { userId: s.user.id, email: s.user.email ?? "" };
+  },
 
-    if (!usuario) {
-      throw new AuthError("USER_NOT_FOUND", "El email no existe");
-    }
+  async login(email: string, password: string): Promise<{ session: Session; user: Cliente }> {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
 
-    if (usuario.password !== password) {
-      throw new AuthError("PASSWORD_INVALID", "La contrasena no es correcta");
-    }
+    const userId = data.user?.id;
+    if (!userId) throw new Error("no user id");
 
-    const nickname = `${usuario.name} ${usuario.surname}`.trim();
-    if (usuario.displayName !== nickname) {
-      const actualizado = await clientesService.update(usuario.id, {
-        displayName: nickname,
-      });
-      if (actualizado) {
-        usuario.displayName = actualizado.displayName;
-      }
-    }
+    const perfil = await clientesService.getById(userId);
+    if (!perfil) throw new Error("perfil no existe en clientes");
 
-    const session: Session = {
-      userId: usuario.id,
-      token: `mock-token-${usuario.id}-${Date.now()}`,
-    };
-
-    const result: AuthResult = {
-      session,
-      user: usuario,
-    };
-
-    // persistir sesión
-    await AsyncStorage.setItem(KEY_SESSION, JSON.stringify(result.session));
-
-    return result;
+    return { session: { userId, email }, user: perfil };
   },
 
   async logout(): Promise<void> {
-    await AsyncStorage.removeItem(KEY_SESSION);
+    await supabase.auth.signOut();
   },
 
-  async restoreSession(): Promise<Session | null> {
-    const raw = await AsyncStorage.getItem(KEY_SESSION);
-    if (!raw) return null;
-
-    try {
-      const session = JSON.parse(raw) as Session;
-      if (!session?.userId || !session?.token) return null;
-      return session;
-    } catch {
-      await AsyncStorage.removeItem(KEY_SESSION);
-      return null;
-    }
+  async getUserById(userId: string): Promise<Cliente | null> {
+    return clientesService.getById(userId);
   },
 
-  async getUserById(id: number): Promise<Cliente | null> {
-    const usuario = await clientesService.getById(id);
-    return usuario ?? null;
+  async getPerfilActual(): Promise<Cliente | null> {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) throw new Error(error.message);
+
+    const uid = data.user?.id;
+    if (!uid) return null;
+
+    return await clientesService.getById(uid);
   },
 };
