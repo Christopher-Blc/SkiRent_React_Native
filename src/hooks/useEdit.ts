@@ -2,10 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { Alert, Animated, Dimensions } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { z } from "zod";
-import { clientesService } from "@/services/clientesService";
 import { Cliente } from "@/types/Clients";
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "@/lib/supabase";
+import {
+  useCliente,
+  useDeleteCliente,
+  useUpdateCliente,
+} from "@/hooks/queries/useClientes";
 
 const H = Dimensions.get("window").height;
 
@@ -29,44 +33,21 @@ export function useEdit() {
   const clientIdStr = clientId ? String(clientId) : "";
 
   // data cliente
-  const [cliente, setCliente] = useState<Cliente | null>(null);
-  const [cargando, setCargando] = useState(true);
+  const {
+    data: clienteData,
+    isLoading,
+    refetch,
+  } = useCliente(clientIdStr);
+  const updateMutation = useUpdateCliente(clientIdStr);
+  const deleteMutation = useDeleteCliente(clientIdStr);
+
+  const cliente: Cliente | null = clienteData ?? null;
+  const cargando = !!clientIdStr && isLoading;
 
   const cargarCliente = async () => {
-    if (!clientIdStr) {
-      setCliente(null);
-      setCargando(false);
-      return;
-    }
-    setCargando(true);
-    const c = await clientesService.getById(clientIdStr);
-    setCliente(c);
-    setCargando(false);
+    if (!clientIdStr) return;
+    await refetch();
   };
-
-  useEffect(() => {
-    let mounted = true;
-
-    (async () => {
-      if (!clientIdStr) {
-        if (mounted) {
-          setCliente(null);
-          setCargando(false);
-        }
-        return;
-      }
-      setCargando(true);
-      const c = await clientesService.getById(clientIdStr);
-      if (mounted) {
-        setCliente(c);
-        setCargando(false);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, [clientIdStr]);
 
   // popup editar
   const [editar, setEditar] = useState(false);
@@ -130,7 +111,7 @@ export function useEdit() {
     closeConfirmDelete();
     try {
       if (!clientIdStr) return;
-      await clientesService.remove(clientIdStr);
+      await deleteMutation.mutateAsync();
       router.replace("/clientes");
     } catch {
       Alert.alert("Error", "No se pudo eliminar el cliente");
@@ -155,7 +136,7 @@ export function useEdit() {
 
     try {
       if (!clientIdStr) return;
-      await clientesService.update(clientIdStr, result.data);
+      await updateMutation.mutateAsync(result.data);
       cerrarEditar();
       await cargarCliente();
     } catch (e: any) {
@@ -215,9 +196,9 @@ export function useEdit() {
 
     if (uploadError) throw uploadError;
 
-    await clientesService.update(clientIdStr, { avatar: filePath });
-    await cargarCliente();
-  } catch (e: any) {
+      await updateMutation.mutateAsync({ avatar: filePath });
+      await cargarCliente();
+    } catch (e: any) {
     const msg = e?.message || e?.error_description || "No se pudo subir la imagen";
     Alert.alert("Error", msg);
   } finally {

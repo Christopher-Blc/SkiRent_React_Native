@@ -1,9 +1,5 @@
-import { Redirect, Slot } from "expo-router";
-import { useUserStore } from "@/store/userStore";
-import { roles } from "@/types/Clients";
-import { font } from "@/styles/typography";
-
+import { Slot } from "expo-router";
 
 export default function CustomerLayout() {
-    
+  return <Slot />;
 }

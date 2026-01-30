@@ -9,7 +9,7 @@ interface ClientsCardProps {
   surname: string;
   email: string;
   phoneNumber: string;
-  pedidosCount?: number;
+  pedidosCount?: number | null;
 }
 
 const getInitials = (name: string, surname: string) =>
@@ -20,7 +20,7 @@ export const ClientsCard = ({
   surname,
   email,
   phoneNumber,
-  pedidosCount = 0,
+  pedidosCount,
 }: ClientsCardProps) => {
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
@@ -58,14 +58,16 @@ export const ClientsCard = ({
           </Text>
         </View>
 
-        <View style={styles.meta}>
-          <Text style={[styles.metaLabel, { color: theme.colors.textSecondary }]}>
-            Pedidos
-          </Text>
-          <Text style={[styles.metaValue, { color: theme.colors.textPrimary }]}>
-            {pedidosCount}
-          </Text>
-        </View>
+        {typeof pedidosCount === "number" ? (
+          <View style={styles.meta}>
+            <Text style={[styles.metaLabel, { color: theme.colors.textSecondary }]}>
+              Pedidos
+            </Text>
+            <Text style={[styles.metaValue, { color: theme.colors.textPrimary }]}>
+              {pedidosCount}
+            </Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );

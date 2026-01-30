@@ -1,24 +1,30 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { ButtonRectangular } from "./ButtonRectangular";
 import { Cliente } from "@/types/Clients";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
+import { supabase } from "@/lib/supabase";
 
 interface Props {
   cliente: Cliente;
   onEditar: () => void;
   onEliminar: () => void;
+  pedidos?: string[];
+  pedidosCount?: number | null;
 }
 
-export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
+export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedidosCount }: Props) {
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const initials = `${cliente.name?.[0] ?? ""}${cliente.surname?.[0] ?? ""}`.toUpperCase();
-  const pedidos = cliente.pedidos ?? [];
-  const pedidosCount = pedidos.length;
-
+  const pedidosTotal = typeof pedidosCount === "number" ? pedidosCount : pedidos.length;
+  const avatarFallback = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  const avatarUrl = cliente?.avatar
+      ? supabase.storage.from("userData").getPublicUrl(cliente.avatar).data.publicUrl
+      : null;
+      
   return (
     <View
       style={[
@@ -28,14 +34,16 @@ export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
     >
       <View style={styles.headerRow}>
         <View
+        
           style={[
             styles.avatar,
             { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
           ]}
         >
-          <Text style={[styles.avatarText, { color: theme.colors.primary }]}>
-            {initials}
-          </Text>
+          <Image
+            source={{ uri: avatarUrl || avatarFallback }}
+            style={{ width: 32, height: 32, borderRadius: 16 }}
+          />
         </View>
         <View style={styles.headerInfo}>
           <Text style={[styles.name, { color: theme.colors.textPrimary }]}>
@@ -89,7 +97,7 @@ export function ClienteCard({ cliente, onEditar , onEliminar}: Props) {
           Pedidos
         </Text>
         <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
-          {pedidosCount}
+          {pedidosTotal}
         </Text>
       </View>
 

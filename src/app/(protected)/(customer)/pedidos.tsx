@@ -1,21 +1,30 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useUserStore } from "@/store/userStore";
-import { roles } from "@/types/Clients";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
+import { useRoles } from "@/hooks/queries/useRoles";
+import { useReservasCount } from "@/hooks/queries/useReservas";
 
 export default function Pedidos() {
   const user = useUserStore((s) => s.user);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
+  const { data: roles, isLoading: rolesLoading } = useRoles();
+  const {
+    data: pedidosCount,
+    isLoading: pedidosLoading,
+    error: pedidosError,
+  } = useReservasCount(user?.id ?? "");
+  const pedidosValue = pedidosLoading ? "..." : pedidosError ? "!" : pedidosCount ?? 0;
 
   const nombre = user?.displayName ?? user?.name ?? "Usuario";
-  const roleName = user
-    ? roles.find((role) => role.id === user.RolId)?.name ?? "NORMAL"
-    : "NORMAL";
-  const pedidosCount = user?.pedidos?.length ?? 0;
+  const roleName = rolesLoading
+    ? "..."
+    : user
+      ? roles?.find((role) => role.id === user.RolId)?.name ?? "NORMAL"
+      : "NORMAL";
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -42,7 +51,7 @@ export default function Pedidos() {
             <Feather name="shopping-bag" size={18} color={theme.colors.primary} />
           </View>
           <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
-            {pedidosCount}
+            {pedidosValue}
           </Text>
           <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
             Total

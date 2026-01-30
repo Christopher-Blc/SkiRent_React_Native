@@ -4,13 +4,13 @@ import { Card } from "react-native-paper";
 import { router } from "expo-router";
 import { TextInputRectangle } from "@/components/TextInputRectangle";
 import { ButtonRectangular } from "@/components/ButtonRectangular";
-import { clientesService } from "@/services/clientesService";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
+import { useCreateCliente } from "@/hooks/queries/useClientes";
 
 const telefonoRegex = /^\+?\d{7,15}$/;
 const schema = z.object({
@@ -30,6 +30,7 @@ export default function CrearClienteScreen() {
   const [guardando, setGuardando] = useState(false);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
+  const createMutation = useCreateCliente();
 
   const {
     control,
@@ -56,7 +57,7 @@ export default function CrearClienteScreen() {
 
       const nickname = data.displayName.trim();
 
-      await clientesService.create({
+      await createMutation.mutateAsync({
         name: data.name.trim(),
         RolId: 1,
         surname: data.surname.trim(),

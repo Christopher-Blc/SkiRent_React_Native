@@ -5,7 +5,6 @@ import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useUserStore } from "@/store/userStore";
 import { clientesService } from "@/services/clientesService";
-import { roles } from "@/types/Clients";
 import { TextInputRectangle } from "@/components/TextInputRectangle";
 import { ButtonRectangular } from "@/components/ButtonRectangular";
 import { styles } from "@/styles/profile.styles";
@@ -13,6 +12,8 @@ import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from "@/lib/supabase";
+import { useRoles } from "@/hooks/queries/useRoles";
+import { useReservasCount } from "@/hooks/queries/useReservas";
 
 
 export default function ProfileScreen() {
@@ -22,7 +23,13 @@ export default function ProfileScreen() {
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const { logout } = useAuth();
-  const pedidosCount = user?.pedidos?.length ?? 0;
+  const { data: roles, isLoading: rolesLoading } = useRoles();
+  const {
+    data: pedidosCount,
+    isLoading: pedidosLoading,
+    error: pedidosError,
+  } = useReservasCount(user?.id ?? "");
+  const pedidosValue = pedidosLoading ? "..." : pedidosError ? "!" : pedidosCount ?? 0;
   const avatarUrl = user?.avatar
   ? `${supabase.storage.from("userData").getPublicUrl(user.avatar).data.publicUrl}?t=${Date.now()}`
   : null;
@@ -207,7 +214,9 @@ export default function ProfileScreen() {
             {user.name} {user.surname}
           </Text>
           <Text style={[styles.roleText, { color: theme.colors.textSecondary }]}>
-            {roles.find((role) => role.id === user.RolId)?.name ?? "NORMAL"}
+            {rolesLoading
+              ? "..."
+              : roles?.find((role) => role.id === user.RolId)?.name ?? "NORMAL"}
           </Text>
         </View>
       </View>
@@ -223,7 +232,7 @@ export default function ProfileScreen() {
             Pedidos
           </Text>
           <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
-            {pedidosCount}
+            {pedidosValue}
           </Text>
         </View>
         <View

@@ -1,30 +1,20 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import { View, Text, FlatList, StyleSheet, Pressable } from "react-native";
 import { router } from "expo-router";
 import { FAB } from "react-native-paper";
-import { useFocusEffect } from "@react-navigation/native";
-import { clientesService } from "@/services/clientesService";
 import { ClientsCard } from "@/components/ClientsCard";
-import { Cliente } from "@/types/Clients";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
+import { useClientesList } from "@/hooks/queries/useClientes";
 
 //pantalla que muestra la lista de clientes
 export default function Clientes() {
-  const [lista, setLista] = useState<Cliente[]>([]);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
 
-  const cargar = useCallback(() => {
-    clientesService.list().then(setLista);
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      cargar();
-    }, [cargar])
-  );
+  const { data, isLoading, error, refetch } = useClientesList();
+  const lista = data ?? [];
 
   return (
     <>
@@ -54,6 +44,19 @@ export default function Clientes() {
             </View>
           </View>
         </View>
+
+        {isLoading ? (
+          <Text style={{ color: theme.colors.textSecondary, paddingHorizontal: 16 }}>
+            Cargando...
+          </Text>
+        ) : null}
+        {error ? (
+          <Pressable onPress={() => refetch()}>
+            <Text style={{ color: theme.colors.error, paddingHorizontal: 16 }}>
+              Error al cargar. Toca para reintentar.
+            </Text>
+          </Pressable>
+        ) : null}
       
         <FlatList
           data={lista}
@@ -66,7 +69,6 @@ export default function Clientes() {
                 surname={item.surname}
                 email={item.email}
                 phoneNumber={item.phoneNumber ?? ""}
-                pedidosCount={item.pedidos?.length ?? 0}
               />
             </Pressable>
           )}

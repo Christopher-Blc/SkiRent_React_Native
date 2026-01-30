@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, Modal, Pressable, Animated, StyleSheet, View, Image } from "react-native";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { Button, Dialog, Portal } from "react-native-paper";
 import { TextInputRectangle } from "@/components/TextInputRectangle";
@@ -12,9 +12,11 @@ import { getTheme } from "@/styles/theme";
 import { Feather } from "@expo/vector-icons";
 import { font } from "@/styles/typography";
 import { supabase } from "@/lib/supabase";
+import { useReservasByCliente, useReservasCount } from "@/hooks/queries/useReservas";
 
 export default function ClienteDetalle() {
   const router = useRouter();
+  const { id: clientId } = useLocalSearchParams();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   //constantes que vienen del hook useEdit y controlan toda la logica de editar/eliminar cliente
@@ -48,6 +50,11 @@ export default function ClienteDetalle() {
     avatarUploading,
   } = useEdit();
 
+  const { data: reservas } = useReservasByCliente(clientId as string, 5);
+  const { data: reservasCount } = useReservasCount(clientId as string);
+  const pedidos = (reservas ?? []).map((r) => `#${r.id} · ${r.estado ?? "Sin estado"}`);
+
+  //Imagen de avatar del cliente que se saca del bucket de supa
   const avatarUrl = cliente?.avatar
     ? supabase.storage.from("userData").getPublicUrl(cliente.avatar).data.publicUrl
     : null;
@@ -104,7 +111,13 @@ export default function ClienteDetalle() {
 
 
       <View style={[styles.page, { backgroundColor: theme.colors.background }]}>
-        <ClienteCard cliente={cliente} onEditar={abrirEditar} onEliminar={eliminar} />
+        <ClienteCard
+          cliente={cliente}
+          onEditar={abrirEditar}
+          onEliminar={eliminar}
+          pedidos={pedidos}
+          pedidosCount={reservasCount}
+        />
       </View>
       {/* Editar cliente modal que aparece desde abajo y ocupa el 80% de la pantalla */}
       <Modal visible={editar} transparent animationType="none" onRequestClose={cerrarEditar}>
@@ -147,6 +160,7 @@ export default function ClienteDetalle() {
               colorTxt={theme.colors.textPrimary}
               colorBorder={theme.colors.border}
               onPressed={cambiarAvatar}
+              widthButton={'80%'}
             />
           </View>
 
