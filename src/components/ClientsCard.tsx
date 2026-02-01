@@ -1,14 +1,16 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
+import { supabase } from "@/lib/supabase";
 
 interface ClientsCardProps {
   name: string;
   surname: string;
   email: string;
   phoneNumber: string;
+  avatar?: string | null;
   pedidosCount?: number | null;
 }
 
@@ -20,10 +22,14 @@ export const ClientsCard = ({
   surname,
   email,
   phoneNumber,
+  avatar,
   pedidosCount,
 }: ClientsCardProps) => {
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
+  const avatarUrl = avatar
+    ? `${supabase.storage.from("userData").getPublicUrl(avatar).data.publicUrl}?t=${Date.now()}`
+    : null;
 
   return (
     <View
@@ -39,9 +45,16 @@ export const ClientsCard = ({
             { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
           ]}
         >
-          <Text style={[styles.avatarText, { color: theme.colors.primary }]}>
-            {getInitials(name, surname)}
-          </Text>
+          {avatarUrl ? (
+            <Image
+              source={{ uri: avatarUrl }}
+              style={{ width: 46, height: 46, borderRadius: 23 }}
+            />
+          ) : (
+            <Text style={[styles.avatarText, { color: theme.colors.primary }]}>
+              {getInitials(name, surname)}
+            </Text>
+          )}
         </View>
 
         <View style={styles.body}>

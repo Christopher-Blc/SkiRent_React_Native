@@ -20,9 +20,8 @@ export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedid
   const theme = getTheme(mode);
   const initials = `${cliente.name?.[0] ?? ""}${cliente.surname?.[0] ?? ""}`.toUpperCase();
   const pedidosTotal = typeof pedidosCount === "number" ? pedidosCount : pedidos.length;
-  const avatarFallback = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
   const avatarUrl = cliente?.avatar
-      ? supabase.storage.from("userData").getPublicUrl(cliente.avatar).data.publicUrl
+      ? `${supabase.storage.from("userData").getPublicUrl(cliente.avatar).data.publicUrl}?t=${Date.now()}`
       : null;
       
   return (
@@ -34,16 +33,21 @@ export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedid
     >
       <View style={styles.headerRow}>
         <View
-        
           style={[
             styles.avatar,
             { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
           ]}
         >
-          <Image
-            source={{ uri: avatarUrl || avatarFallback }}
-            style={{ width: 32, height: 32, borderRadius: 16 }}
-          />
+          {avatarUrl ? (
+            <Image
+              source={{ uri: avatarUrl }}
+              style={{ width: 32, height: 32, borderRadius: 16 }}
+            />
+          ) : (
+            <Text style={[styles.avatarText, { color: theme.colors.primary }]}>
+              {initials}
+            </Text>
+          )}
         </View>
         <View style={styles.headerInfo}>
           <Text style={[styles.name, { color: theme.colors.textPrimary }]}>

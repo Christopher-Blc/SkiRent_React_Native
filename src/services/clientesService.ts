@@ -31,6 +31,18 @@ function toDb(data: Partial<Omit<Cliente, "id">>) {
   return payload;
 }
 
+function generateId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  // Fallback UUIDv4 (not cryptographically strong, but fine for client-side id)
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 // convierte errores de unique constraint en tus codigos antiguos
 function mapUniqueError(err: any) {
   // postgres unique violation
@@ -81,7 +93,8 @@ export const clientesService = {
     id?: string
   ): Promise<Cliente> {
     const payload = toDb(data);
-    const row = id ? { id, ...payload } : payload;
+    const rowId = id ?? generateId();
+    const row = { id: rowId, ...payload };
 
     const { data: inserted, error } = await supabase
       .from("clientes")
@@ -96,6 +109,34 @@ export const clientesService = {
     }
 
     return mapDb(inserted);
+  },
+
+  async createWithAuth(input: {
+    email: string;
+    password: string;
+    roleId: number;
+    name: string;
+    surname: string;
+    displayName: string;
+    phoneNumber: string | null;
+  }): Promise<Cliente> {
+    const { data, error } = await supabase.functions.invoke("create-cliente", {
+      body: {
+        email: input.email,
+        password: input.password,
+        role_id: input.roleId,
+        name: input.name,
+        surname: input.surname,
+        display_name: input.displayName,
+        phone_number: input.phoneNumber,
+      },
+    });
+
+    if (error) throw new Error(error.message);
+    if (!data) throw new Error("No se pudo crear el cliente");
+    if (data.error) throw new Error(data.error);
+
+    return mapDb(data.data ?? data);
   },
 
   async findByEmail(email: string): Promise<Cliente | null> {
@@ -136,8 +177,15 @@ export const clientesService = {
   },
 
   async remove(id: string): Promise<boolean> {
-    const { error } = await supabase.from("clientes").delete().eq("id", id);
+    const { data, error } = await supabase
+      .from("clientes")
+      .delete()
+      .eq("id", id)
+      .select("id");
     if (error) throw new Error(error.message);
+    if (!data || data.length === 0) {
+      throw new Error("No se pudo eliminar (sin permisos o no existe)");
+    }
     return true;
   },
 };

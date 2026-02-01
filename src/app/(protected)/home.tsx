@@ -22,7 +22,7 @@ export default function Home() {
   const roleName = rolesLoading
     ? "..."
     : user
-      ? roles?.find((role) => role.id === user.RolId)?.name ?? "NORMAL"
+      ? roles?.find((role) => role.id === user.roleId)?.name ?? "NORMAL"
       : "NORMAL";
   const pedidosValue = pedidosLoading ? "..." : pedidosError ? "!" : pedidosCount ?? 0;
 

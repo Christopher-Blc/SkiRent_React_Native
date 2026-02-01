@@ -32,6 +32,24 @@ export function useCreateCliente() {
   });
 }
 
+export function useCreateClienteWithAuth() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      email: string;
+      password: string;
+      roleId: number;
+      name: string;
+      surname: string;
+      displayName: string;
+      phoneNumber: string | null;
+    }) => clientesService.createWithAuth(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: clientesKeys.all });
+    },
+  });
+}
+
 export function useUpdateCliente(id: string) {
   const qc = useQueryClient();
   return useMutation({

@@ -15,8 +15,8 @@ export default function AppLayout() {
 
   //con eso podemos coger los datos del usuario desde el usuario almacenado en zustand
   const user = useUserStore((s) => s.user);
-  const avatarUrl = user?.avatar
-  ? `${supabase.storage.from("userData").getPublicUrl(user.avatar).data.publicUrl}?t=${Date.now()}`
+  const avatarUrl = user?.avatarUrl
+  ? `${supabase.storage.from("userData").getPublicUrl(user.avatarUrl).data.publicUrl}?t=${Date.now()}`
   : null;
   const avatarFallback = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
   const { isAuthenticated, isLoading, logout } = useAuth();
@@ -25,7 +25,7 @@ export default function AppLayout() {
   const segments = useSegments();
   const isInClientes = segments.includes("clientes");
   const isClienteDetalle = segments.includes("[id]");
-  const esAdmin = String(user?.RolId) === "2";
+  const esAdmin = String(user?.roleId) === "2";
 
 
   useEffect(() => {
@@ -107,7 +107,7 @@ export default function AppLayout() {
 
 
       {/* CLIENTES → INDEX */}
-      {user?.RolId === 2 ? (
+      {user?.roleId === 2 ? (
         <Tabs.Screen
           name="(admin)/clientes"
           options={{

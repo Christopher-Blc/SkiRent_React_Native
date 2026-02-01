@@ -6,7 +6,7 @@ export default function AdminLayout() {
   const user = useUserStore((s) => s.user);
   const { data: roles, isLoading } = useRoles();
   const roleName = user
-    ? roles?.find((role) => role.id === user.RolId)?.name
+    ? roles?.find((role) => role.id === user.roleId)?.name
     : undefined;
 
   if (isLoading) return null;

@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useUserStore } from "@/store/userStore";
-import { clientesService } from "@/services/clientesService";
+import { profileService } from "@/services/profileService";
 import { TextInputRectangle } from "@/components/TextInputRectangle";
 import { ButtonRectangular } from "@/components/ButtonRectangular";
 import { styles } from "@/styles/profile.styles";
@@ -30,8 +30,8 @@ export default function ProfileScreen() {
     error: pedidosError,
   } = useReservasCount(user?.id ?? "");
   const pedidosValue = pedidosLoading ? "..." : pedidosError ? "!" : pedidosCount ?? 0;
-  const avatarUrl = user?.avatar
-  ? `${supabase.storage.from("userData").getPublicUrl(user.avatar).data.publicUrl}?t=${Date.now()}`
+  const avatarUrl = user?.avatarUrl
+  ? `${supabase.storage.from("userData").getPublicUrl(user.avatarUrl).data.publicUrl}?t=${Date.now()}`
   : null;
   const avatarFallback = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
@@ -51,7 +51,7 @@ export default function ProfileScreen() {
     setName(user?.name ?? "");
     setSurname(user?.surname ?? "");
     setDisplayName(user?.displayName ?? user?.name ?? "");
-  }, [user?.displayName, user?.name, user?.surname , user?.avatar]);
+  }, [user?.displayName, user?.name, user?.surname , user?.avatarUrl]);
 
   if (!user) {
     return (
@@ -72,7 +72,7 @@ export default function ProfileScreen() {
       return;
     }
     try {
-      await clientesService.update(user.id, { name: trimmed });
+      await profileService.updateMe({ name: trimmed });
       updateUser({ name: trimmed });
     } catch {
       Alert.alert("Error", "No se pudo actualizar el nombre.");
@@ -90,7 +90,7 @@ export default function ProfileScreen() {
       return;
     }
     try {
-      await clientesService.update(user.id, { surname: trimmed });
+      await profileService.updateMe({ surname: trimmed });
       updateUser({ surname: trimmed });
     } catch {
       Alert.alert("Error", "No se pudo actualizar el apellido.");
@@ -108,7 +108,7 @@ export default function ProfileScreen() {
       return;
     }
     try {
-      await clientesService.update(user.id, { displayName: trimmed });
+      await profileService.updateMe({ displayName: trimmed });
       updateUser({ displayName: trimmed });
     } catch {
       Alert.alert("Error", "No se pudo actualizar el nickname.");
@@ -165,8 +165,8 @@ export default function ProfileScreen() {
 
       if (uploadError) throw uploadError;
 
-      await clientesService.update(user.id, { avatar: filePath });
-      updateUser({ avatar: filePath });
+      await profileService.updateMe({ avatarUrl: filePath });
+      updateUser({ avatarUrl: filePath });
       Alert.alert("Listo", "Avatar actualizado.");
     } catch (e: any) {
       const msg = e?.message || e?.error_description || "No se pudo subir la imagen";
@@ -216,7 +216,7 @@ export default function ProfileScreen() {
           <Text style={[styles.roleText, { color: theme.colors.textSecondary }]}>
             {rolesLoading
               ? "..."
-              : roles?.find((role) => role.id === user.RolId)?.name ?? "NORMAL"}
+              : roles?.find((role) => role.id === user.roleId)?.name ?? "NORMAL"}
           </Text>
         </View>
       </View>

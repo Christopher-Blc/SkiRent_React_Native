@@ -23,7 +23,7 @@ export default function Pedidos() {
   const roleName = rolesLoading
     ? "..."
     : user
-      ? roles?.find((role) => role.id === user.RolId)?.name ?? "NORMAL"
+      ? roles?.find((role) => role.id === user.roleId)?.name ?? "NORMAL"
       : "NORMAL";
 
   return (

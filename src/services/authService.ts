@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
-import type { Cliente } from "@/types/Clients";
-import { clientesService } from "./clientesService";
+import type { UserProfile } from "@/types/Users";
+import { profileService } from "@/services/profileService";
 
 export type Session = {
   userId: string;
@@ -18,34 +18,28 @@ export const authService = {
     return { userId: s.user.id, email: s.user.email ?? "" };
   },
 
-  async login(email: string, password: string): Promise<{ session: Session; user: Cliente }> {
+  async login(email: string, password: string): Promise<{ session: Session; user: UserProfile }> {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message);
 
     const userId = data.user?.id;
     if (!userId) throw new Error("no user id");
 
-    const perfil = await clientesService.getById(userId);
-    if (!perfil) throw new Error("perfil no existe en clientes");
+    const perfil = await profileService.getMe();
+    if (!perfil) throw new Error("perfil no existe en users");
 
-    return { session: { userId, email }, user: perfil };
+    return { session: { userId, email: data.user?.email ?? email }, user: perfil };
   },
 
   async logout(): Promise<void> {
     await supabase.auth.signOut();
   },
 
-  async getUserById(userId: string): Promise<Cliente | null> {
-    return clientesService.getById(userId);
+  async getUserById(userId: string): Promise<UserProfile | null> {
+    return profileService.getByAuthUserId(userId);
   },
 
-  async getPerfilActual(): Promise<Cliente | null> {
-    const { data, error } = await supabase.auth.getUser();
-    if (error) throw new Error(error.message);
-
-    const uid = data.user?.id;
-    if (!uid) return null;
-
-    return await clientesService.getById(uid);
+  async getPerfilActual(): Promise<UserProfile | null> {
+    return profileService.getMe();
   },
 };

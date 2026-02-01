@@ -59,15 +59,15 @@ export default function CrearClienteScreen() {
 
       await createMutation.mutateAsync({
         name: data.name.trim(),
-        RolId: 1,
         surname: data.surname.trim(),
         email: data.email.trim(),
         phoneNumber: data.phoneNumber.trim(),
         displayName: nickname,
+        RolId: 1,
       });
 
       Alert.alert("Cliente creado", "Se ha creado correctamente", [
-        { text: "OK", onPress: () => router.replace("/clientes/") },
+        { text: "OK", onPress: () => router.replace("/clientes") },
       ]);
     } catch (e: any) {
       if (e?.message === "EMAIL_DUPLICADO") {
@@ -80,7 +80,8 @@ export default function CrearClienteScreen() {
         return;
       }
 
-      Alert.alert("Error", "No se ha podido crear el cliente");
+      const msg = e?.message || "No se ha podido crear el cliente";
+      Alert.alert("Error", msg);
     } finally {
       setGuardando(false);
     }

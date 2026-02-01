@@ -113,8 +113,9 @@ export function useEdit() {
       if (!clientIdStr) return;
       await deleteMutation.mutateAsync();
       router.replace("/clientes");
-    } catch {
-      Alert.alert("Error", "No se pudo eliminar el cliente");
+    } catch (e: any) {
+      const msg = e?.message || e?.error_description || "No se pudo eliminar el cliente";
+      Alert.alert("Error", msg);
     }
   };
 
@@ -188,11 +189,11 @@ export function useEdit() {
     const filePath = `clientes/${clientIdStr}/avatar.${ext}`;
 
     const resp = await fetch(uri);
-    const blob = await resp.blob();
+    const arrayBuffer = await resp.arrayBuffer();
 
     const { error: uploadError } = await supabase.storage
       .from("userData")
-      .upload(filePath, blob, { contentType, upsert: true });
+      .upload(filePath, arrayBuffer, { contentType, upsert: true });
 
     if (uploadError) throw uploadError;
 

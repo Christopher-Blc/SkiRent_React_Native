@@ -56,7 +56,7 @@ export default function ClienteDetalle() {
 
   //Imagen de avatar del cliente que se saca del bucket de supa
   const avatarUrl = cliente?.avatar
-    ? supabase.storage.from("userData").getPublicUrl(cliente.avatar).data.publicUrl
+    ? `${supabase.storage.from("userData").getPublicUrl(cliente.avatar).data.publicUrl}?t=${Date.now()}`
     : null;
 
   if (cargando) {
