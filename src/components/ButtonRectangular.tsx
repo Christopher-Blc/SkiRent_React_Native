@@ -50,38 +50,41 @@ export const ButtonRectangular = ({
           borderColor: hasBorder ? colorBorder : "transparent",
           borderWidth: hasBorder ? 1 : 0,
           opacity: pressed ? 0.9 : 1,
-          transform: [{ translateY: pressed ? 1 : 0 }],
         },
       ]}
     >
-      {icon ? (
-        <View
-          style={[
-            styles.iconBlock,
-            {
-              marginLeft: -10,
-              backgroundColor: colorBorder
-                ? colorBorder
-                : "rgba(255,255,255,0.18)",
-              width: iconBoxSize,
-              height: iconBoxSize,
-              borderRadius: iconRadius,
-            },
-          ]}
-        >
-          {icon.type === "feather" ? (
-            <Feather name={icon.name} color={colorIcon} size={iconSize} />
-          ) : (
-            <AntDesign name="google" color={colorIcon} size={iconSize} />
-          )}
-        </View>
-      ) : null}
+      {/* ZONA 1 — ICONO */}
+      <View style={styles.zone1}>
+        {icon ? (
+          <View
+            style={[
+              styles.iconBlock,
+              {
+                backgroundColor: colorBorder
+                  ? colorBorder
+                  : "rgba(255,255,255,0.18)",
+                width: iconBoxSize,
+                height: iconBoxSize,
+                borderRadius: iconRadius,
+              },
+            ]}
+          >
+            {icon.type === "feather" ? (
+              <Feather name={icon.name} color={colorIcon} size={iconSize} />
+            ) : (
+              <AntDesign name="google" color={colorIcon} size={iconSize} />
+            )}
+          </View>
+        ) : null}
+      </View>
 
-      <View style={styles.textWrap}>
+      {/* ZONA 2 — TEXTO */}
+      <View style={styles.zone}>
         <Text style={[styles.buttonText, { color: colorTxt }]}>{text}</Text>
       </View>
 
-      {icon ? <View style={styles.rightSpacer} /> : null}
+      {/* ZONA 3 — VACIA */}
+      <View style={styles.zone} />
     </Pressable>
   );
 };
@@ -91,20 +94,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
   },
-  iconBlock: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  textWrap: {
+  zone: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
-  rightSpacer: {
-    width: 44,
+  zone1: {
+    flex: 1,
+    alignItems: "flex-start",
+    justifyContent: "flex-start" ,
+    paddingLeft: 7
+  },
+  iconBlock: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: {
     fontSize: 15,

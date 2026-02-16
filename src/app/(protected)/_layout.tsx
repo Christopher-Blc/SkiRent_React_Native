@@ -8,7 +8,7 @@ import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 import { supabase } from "@/lib/supabase";
-
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 
 export default function AppLayout() {
@@ -118,6 +118,19 @@ export default function AppLayout() {
           }}
         />
       ) : null}
+
+      {/* productos */}
+      <Tabs.Screen
+        name="productos"
+        
+        options={{
+          title: 'Productos',
+          tabBarLabel: 'Productos',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="skiing" size={24} color={color} />
+          ),
+        }}
+      />
 
 
 

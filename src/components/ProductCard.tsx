@@ -6,8 +6,8 @@ import { font } from "@/styles/typography";
 
 interface ProductCardProps {
   title: string;
-  price: number;
-  description: string;
+  price?: number | null;
+  description?: string | null;
 }
 
 export const ProductCard = ({
@@ -27,29 +27,27 @@ export const ProductCard = ({
     <View style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
       <View style={styles.headerRow}>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
-        <View
-          style={[
-            styles.pricePill,
-            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
-          ]}
-        >
-          <Text style={[styles.price, { color: theme.colors.primary }]}>
-            {price.toFixed(2)} €
-          </Text>
-        </View>
+        {typeof price === "number" && Number.isFinite(price) ? (
+          <View
+            style={[
+              styles.pricePill,
+              { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+            ]}
+          >
+            <Text style={[styles.price, { color: theme.colors.primary }]}>
+              {price.toFixed(2)} euro
+            </Text>
+          </View>
+        ) : null}
       </View>
 
-      <Text style={[styles.description, { color: theme.colors.textSecondary }]}>{description}</Text>
+      <Text style={[styles.description, { color: theme.colors.textSecondary }]}>{description || "Sin descripcion"}</Text>
 
       <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]} onPress={handleAdd}>
-        <Text style={[styles.buttonText, { color: theme.colors.primaryContrast }]}>
-          Añadir al carrito
-        </Text>
+        <Text style={[styles.buttonText, { color: theme.colors.primaryContrast }]}>Anadir al carrito</Text>
       </TouchableOpacity>
 
-      <Text style={[styles.quantity, { color: theme.colors.textPrimary }]}>
-        Unidades: {quantity}
-      </Text>
+      <Text style={[styles.quantity, { color: theme.colors.textPrimary }]}>Unidades: {quantity}</Text>
     </View>
   );
 };
@@ -93,7 +91,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 8,
   },
   buttonText: {

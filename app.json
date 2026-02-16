@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.skiRent"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,14 +22,17 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.skiRent"
     },
     "web": {
       "favicon": "./assets/favicon.png",
-       "bundler": "metro"
+      "bundler": "metro"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-notifications"
+      
     ]
   }
 }

@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { useThemeStore } from '@/store/themeStore';
 import { getTheme } from '@/styles/theme';
 
+//pagina de login, se muestra mientras se verifica el estado de autenticacion, si no esta autenticado se muestra el formulario de login, si esta autenticado se redirige a la pagina principal del app
 export default function Login() {
 
   const router = useRouter();

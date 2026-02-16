@@ -6,6 +6,8 @@ import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 import { useRoles } from "@/hooks/queries/useRoles";
 import { useReservasCount } from "@/hooks/queries/useReservas";
+import { ButtonRectangular } from "@/components/ButtonRectangular";
+
 
 export default function Home() {
   const user = useUserStore((s) => s.user);
@@ -202,4 +204,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontFamily: font.display,
   },
+
+  page: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  map: {
+    flex: 1
+  }
 });

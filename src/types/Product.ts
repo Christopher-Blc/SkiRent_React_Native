@@ -1,6 +1,33 @@
-export interface Product {
+export interface Producto {
   id: number;
-  title: string;
-  price: number;
-  description: string;
+  categoria_id: number;
+  nombre: string;
+  marca?: string | null;
+  modelo?: string | null;
+  descripcion?: string | null;
+  precio?: number | null;
+  activo: boolean;
+  image_url: string | null;
+  created_at?: string;
+  updated_at?: string | null;
+}
+
+export interface ProductoCrear {
+  categoria_id: number;
+  nombre: string;
+  marca?: string;
+  modelo?: string;
+  descripcion?: string;
+  precio?: number;
+  activo?: boolean;
+}
+
+export interface ProductoActualizar {
+  categoria_id?: number;
+  nombre?: string;
+  marca?: string;
+  modelo?: string;
+  descripcion?: string;
+  precio?: number;
+  activo?: boolean;
 }
