@@ -1,20 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 
 interface ProductCardProps {
+  image?: string | null;
   title: string;
   price?: number | null;
   description?: string | null;
+  onEdit?: () => void;
 }
 
-export const ProductCard = ({
-  title,
-  price,
-  description,
-}: ProductCardProps) => {
+export const ProductCard = ({ image, title, price, description, onEdit }: ProductCardProps) => {
   const [quantity, setQuantity] = useState<number>(0);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
@@ -25,23 +24,39 @@ export const ProductCard = ({
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
+      <View style={[styles.imageWrap, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+        {onEdit ? (
+          <TouchableOpacity
+            onPress={onEdit}
+            style={[styles.editButton, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}
+          >
+            <Feather name="edit-2" size={14} color={theme.colors.textPrimary} />
+          </TouchableOpacity>
+        ) : null}
+        <Image
+          source={{
+            uri:
+              image ??
+              "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+          }}
+          style={styles.image}
+          resizeMode="contain"
+        />
+      </View>
+
       <View style={styles.headerRow}>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
+
         {typeof price === "number" && Number.isFinite(price) ? (
-          <View
-            style={[
-              styles.pricePill,
-              { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
-            ]}
-          >
-            <Text style={[styles.price, { color: theme.colors.primary }]}>
-              {price.toFixed(2)} euro
-            </Text>
+          <View style={[styles.pricePill, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+            <Text style={[styles.price, { color: theme.colors.primary }]}>{price.toFixed(2)} euro</Text>
           </View>
         ) : null}
       </View>
 
-      <Text style={[styles.description, { color: theme.colors.textSecondary }]}>{description || "Sin descripcion"}</Text>
+      <Text style={[styles.description, { color: theme.colors.textSecondary }]}>
+        {description || "Sin descripcion"}
+      </Text>
 
       <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]} onPress={handleAdd}>
         <Text style={[styles.buttonText, { color: theme.colors.primaryContrast }]}>Anadir al carrito</Text>
@@ -59,6 +74,32 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderRadius: 18,
     borderWidth: 1,
+  },
+  imageWrap: {
+    width: "100%",
+    height: 170,
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: "hidden",
+    marginBottom: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  editButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    zIndex: 2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
   },
   headerRow: {
     flexDirection: "row",

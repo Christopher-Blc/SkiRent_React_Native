@@ -121,7 +121,7 @@ export default function AppLayout() {
 
       {/* productos */}
       <Tabs.Screen
-        name="productos"
+        name="productos/index"
         
         options={{
           title: 'Productos',
@@ -130,6 +130,14 @@ export default function AppLayout() {
             <FontAwesome5 name="skiing" size={24} color={color} />
           ),
         }}
+      />
+      <Tabs.Screen
+        name="productos/crear"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="productos/editar/[id]"
+        options={{ href: null }}
       />
 
 

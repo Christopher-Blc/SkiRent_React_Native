@@ -12,6 +12,11 @@ export interface Producto {
   updated_at?: string | null;
 }
 
+export interface CategoriaProducto {
+  id: number;
+  nombre: string;
+}
+
 export interface ProductoCrear {
   categoria_id: number;
   nombre: string;
@@ -20,6 +25,7 @@ export interface ProductoCrear {
   descripcion?: string;
   precio?: number;
   activo?: boolean;
+  image_url?: string | null;
 }
 
 export interface ProductoActualizar {
@@ -30,4 +36,5 @@ export interface ProductoActualizar {
   descripcion?: string;
   precio?: number;
   activo?: boolean;
+  image_url?: string | null;
 }

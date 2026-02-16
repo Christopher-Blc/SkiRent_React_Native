@@ -1,63 +1,73 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ActivityIndicator,
   FlatList,
+  TouchableOpacity,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { router, useFocusEffect } from "expo-router";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 import { getProduct } from "@/services/productsService";
 import type { Producto } from "@/types/Product";
 import { ProductCard } from "@/components/ProductCard";
+import { supabase } from "@/lib/supabase";
 
-export default function Productos() {
+const PRODUCT_IMAGES_BUCKET = "userData";
+const fallbackImage = "https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
+
+export default function ProductosListScreen() {
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const [productos, setProductos] = useState<Producto[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
 
-  useEffect(() => {
-    let isMounted = true;
+  const resolveImage = (value?: string | null) => {
+    if (!value) return fallbackImage;
+    if (value.startsWith("http://") || value.startsWith("https://")) return value;
+    return supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(value).data.publicUrl;
+  };
 
-    const loadProducts = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(false);
-        const data = await getProduct();
-        if (isMounted) {
-          setProductos((data ?? []).filter((producto) => producto.activo));
-        }
-      } catch (error) {
-        if (isMounted) {
-          setHasError(true);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadProducts();
-
-    return () => {
-      isMounted = false;
-    };
+  const loadProducts = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setHasError(false);
+      const data = await getProduct();
+      setProductos(data ?? []);
+    } catch {
+      setHasError(true);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProducts();
+    }, [loadProducts])
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text style={[styles.kicker, { color: theme.colors.textSecondary }]}>Catalogo</Text>
-        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Listado de productos</Text>
-        <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-          Explora el inventario disponible y anade articulos a tu carrito
-        </Text>
+
+        <View style={styles.titleRow}>
+          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Listado de productos</Text>
+          <TouchableOpacity
+            style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
+            onPress={() => router.push("/productos/crear")}
+          >
+            <Feather name="plus" size={16} color={theme.colors.primaryContrast} />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>Crea y edita productos con imagen</Text>
       </View>
 
       {isLoading ? (
@@ -68,10 +78,7 @@ export default function Productos() {
       ) : hasError ? (
         <View style={styles.stateWrap}>
           <Feather name="alert-circle" size={20} color={theme.colors.primary} />
-          <Text style={[styles.stateText, { color: theme.colors.textSecondary }]}
-          >
-            No se pudieron cargar los productos. Intenta mas tarde.
-          </Text>
+          <Text style={[styles.stateText, { color: theme.colors.textSecondary }]}>No se pudieron cargar los productos.</Text>
         </View>
       ) : (
         <FlatList
@@ -79,9 +86,11 @@ export default function Productos() {
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
             <ProductCard
+              image={resolveImage(item.image_url)}
               title={item.nombre}
               price={item.precio ?? null}
               description={item.descripcion ?? null}
+              onEdit={() => router.push(`/productos/editar/${item.id}`)}
             />
           )}
           contentContainerStyle={styles.listContent}
@@ -108,11 +117,25 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     fontFamily: font.display,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
   title: {
     fontSize: 28,
     fontWeight: "800",
     letterSpacing: -0.2,
     fontFamily: font.display,
+    flex: 1,
+  },
+  addButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
   },
   subtitle: {
     marginTop: 8,
