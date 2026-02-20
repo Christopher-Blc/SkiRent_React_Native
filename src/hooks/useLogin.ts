@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { AuthError } from "@/services/authService";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthError } from "@/services/authService";
 
 export const useLogin = () => {
   const { login } = useAuth();
@@ -15,7 +15,7 @@ export const useLogin = () => {
 
     try {
       await login(email.trim(), password);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof AuthError) {
         if (error.code === "EMAIL_INVALID" || error.code === "USER_NOT_FOUND") {
           setEmailError(error.message);

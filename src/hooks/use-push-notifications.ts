@@ -7,8 +7,7 @@ import Constants from 'expo-constants';
 import { EXPO_PUSH_API_URL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 
-
-// Configura cómo se muestran las notificaciones al recibirlas.
+// Configura como se muestran las notificaciones al recibirlas.
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldPlaySound: true,
@@ -20,11 +19,23 @@ Notifications.setNotificationHandler({
 
 type PushTokenRow = {
   token: string;
+  user_id?: string | null;
 };
 
 type UsePushNotificationsOptions = {
   userId?: string | null;
 };
+
+type PushAudience = 'all' | 'admins';
+
+type SendPushNotificationOptions = {
+  excludeToken?: string | null;
+  audience?: PushAudience;
+  title?: string;
+  data?: Record<string, unknown>;
+};
+
+const ADMIN_ROLE_ID = 2;
 
 export function usePushNotifications(options: UsePushNotificationsOptions = {}) {
   const { userId } = options;
@@ -44,10 +55,10 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
       Platform.OS === 'web'
         ? null
         : Notifications.addNotificationReceivedListener((notification) => {
-          // Guardamos el texto para mostrarlo en pantalla.
-          const body = notification.request.content.body ?? 'Notificacion recibida';
-          setLastNotification(body);
-        });
+            // Guardamos el texto para mostrarlo en pantalla.
+            const body = notification.request.content.body ?? 'Notificacion recibida';
+            setLastNotification(body);
+          });
 
     return () => {
       notificationSub?.remove();
@@ -57,12 +68,11 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
   useEffect(() => {
     if (Platform.OS === 'web') return;
 
-    const responseSub =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        // Captura la data extra cuando el usuario interactua con la notificacion.
-        const data = response.notification.request.content.data;
-        console.log('Usuario interactuó con notificación. Data:', data);
-      });
+    const responseSub = Notifications.addNotificationResponseReceivedListener((response) => {
+      // Captura la data extra cuando el usuario interactua con la notificacion.
+      const data = response.notification.request.content.data;
+      console.log('Usuario interactuo con notificacion. Data:', data);
+    });
 
     // Limpia el listener al desmontar para evitar duplicados.
     return () => responseSub.remove();
@@ -88,7 +98,7 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
         return;
       }
 
-      // Android requiere un canal de notificación.
+      // Android requiere un canal de notificacion.
       if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
           name: 'default',
@@ -117,7 +127,7 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
       setPushToken(tokenResponse.data);
       console.log('Token de Expo registrado:', tokenResponse.data);
 
-      // Guardamos/actualizamos el token en Supabase para futuros envíos.
+      // Guardamos/actualizamos el token en Supabase para futuros envios.
       if (userId) {
         const { error } = await supabase
           .from('push_tokens')
@@ -140,53 +150,22 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
     }
   };
 
-  // Envía una notificación push a todos los tokens excepto `excludeToken`.
+  // Envia una notificacion push a todos los tokens excepto `excludeToken`.
   const sendNotification = async (message: string, excludeToken?: string | null) => {
-    if (!message.trim()) {
-      Alert.alert('Falta mensaje', 'Escribe el texto de la notificacion.');
-      return false;
-    }
-
     setSending(true);
     try {
-      const { data, error } = await supabase.from('push_tokens').select('token');
-      if (error) {
-        Alert.alert('Error', error.message);
-        return false;
-      }
-
-      // Filtramos tokens vacíos y opcionalmente el token actual.
-      const tokens = (data ?? [])
-        .map((row: PushTokenRow) => row.token)
-        .filter(Boolean)
-        .filter((token) => (excludeToken ? token !== excludeToken : true));
-      if (tokens.length === 0) {
-        Alert.alert('Sin destinatarios', 'No hay tokens registrados.');
-        return false;
-      }
-
-      // Expo recomienda enviar en lotes; 80 es un tamaño seguro.
-      const chunks = chunkArray(tokens, 80);
-      for (const chunk of chunks) {
-        const messages = chunk.map((token) => ({
-          to: token,
-          title: 'Notificacion',
-          body: message.trim(),
-        }));
-
-        const response = await fetch(EXPO_PUSH_API_URL, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(messages),
-        });
-
-        if (!response.ok) {
-          const errorBody = await response.text();
-          throw new Error(errorBody || 'Error enviando notificaciones');
+      const result = await sendPushNotification(message, { excludeToken });
+      if (!result.ok) {
+        if (result.reason === 'EMPTY_MESSAGE') {
+          Alert.alert('Falta mensaje', 'Escribe el texto de la notificacion.');
+          return false;
         }
+        if (result.reason === 'NO_RECIPIENTS') {
+          Alert.alert('Sin destinatarios', 'No hay tokens registrados.');
+          return false;
+        }
+        Alert.alert('Error', result.error ?? 'No se pudo enviar');
+        return false;
       }
 
       Alert.alert('Enviado', 'La notificacion se ha enviado.');
@@ -206,6 +185,107 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
     lastNotification,
     sendNotification,
   };
+}
+
+export async function sendNotificationToAdmins(message: string, title = 'Nuevo cliente') {
+  return sendPushNotification(message, { audience: 'admins', title });
+}
+
+export async function sendPushNotification(
+  message: string,
+  options: SendPushNotificationOptions = {},
+) {
+  const text = message.trim();
+  if (!text) {
+    return { ok: false as const, reason: 'EMPTY_MESSAGE' as const };
+  }
+
+  const audience = options.audience ?? 'all';
+  const title = options.title ?? 'Notificacion';
+  const tokens = await fetchRecipientTokens(audience, options.excludeToken);
+
+  if (tokens.length === 0) {
+    return { ok: false as const, reason: 'NO_RECIPIENTS' as const };
+  }
+
+  try {
+    // Expo recomienda enviar en lotes; 80 es un tamano seguro.
+    const chunks = chunkArray(tokens, 80);
+    for (const chunk of chunks) {
+      const messages = chunk.map((token) => ({
+        to: token,
+        title,
+        body: text,
+        data: options.data,
+      }));
+
+      const response = await fetch(EXPO_PUSH_API_URL, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(messages),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(errorBody || 'Error enviando notificaciones');
+      }
+    }
+
+    return { ok: true as const };
+  } catch (error) {
+    return {
+      ok: false as const,
+      error: error instanceof Error ? error.message : 'No se pudo enviar',
+    };
+  }
+}
+
+async function fetchRecipientTokens(audience: PushAudience, excludeToken?: string | null) {
+  if (audience === 'admins') {
+    const { data: admins, error: adminsError } = await supabase
+      .from('clientes')
+      .select('id')
+      .eq('role_id', ADMIN_ROLE_ID);
+
+    if (adminsError) {
+      throw new Error(adminsError.message);
+    }
+
+    const adminIds = (admins ?? []).map((admin: { id: string }) => admin.id).filter(Boolean);
+
+    if (adminIds.length === 0) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('push_tokens')
+      .select('token,user_id')
+      .in('user_id', adminIds);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const allowedIds = new Set(adminIds);
+    return (data ?? [])
+      .filter((row: PushTokenRow) => row.user_id && allowedIds.has(row.user_id))
+      .map((row: PushTokenRow) => row.token)
+      .filter(Boolean)
+      .filter((token) => (excludeToken ? token !== excludeToken : true));
+  }
+
+  const { data, error } = await supabase.from('push_tokens').select('token');
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? [])
+    .map((row: PushTokenRow) => row.token)
+    .filter(Boolean)
+    .filter((token) => (excludeToken ? token !== excludeToken : true));
 }
 
 function chunkArray<T>(items: T[], size: number) {

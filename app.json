@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "skiRent",
-    "slug": "skiRent",
+    "slug": "skirent",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -32,7 +32,13 @@
     "plugins": [
       "expo-router",
       "expo-notifications"
-      
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0da489de-8be6-43f0-82e3-681f3057567e"
+      }
+    },
+    "owner": "chris_blc.06"
   }
 }

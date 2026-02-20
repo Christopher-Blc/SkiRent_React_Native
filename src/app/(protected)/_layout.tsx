@@ -9,6 +9,7 @@ import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 import { supabase } from "@/lib/supabase";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 
 
 export default function AppLayout() {
@@ -26,6 +27,7 @@ export default function AppLayout() {
   const isInClientes = segments.includes("clientes");
   const isClienteDetalle = segments.includes("[id]");
   const esAdmin = String(user?.roleId) === "2";
+  usePushNotifications({ userId: user?.id ?? null });
 
 
   useEffect(() => {
