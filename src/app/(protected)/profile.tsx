@@ -41,6 +41,7 @@ export default function ProfileScreen() {
     roleName,
   } = useProfileScreen();
 
+  //Si no hay usuario logueado, mostramos un mensaje simple en lugar de la pantalla de perfil
   if (!user) {
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -53,6 +54,8 @@ export default function ProfileScreen() {
   }
 
   return (
+    //vista de perfil con opciones para editar nombre, apellido, nickname y avatar, 
+    // ademas de mostrar email y rol del usuario, y botones para ir a preferencias o cerrar sesion
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.headerRow}>
         
