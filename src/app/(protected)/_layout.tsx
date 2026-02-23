@@ -112,19 +112,6 @@ export default function AppLayout() {
       />
 
 
-      {/* CLIENTES → INDEX */}
-      {user?.roleId === 2 ? (
-        <Tabs.Screen
-          name="(admin)/clientes"
-          options={{
-            title: t("clients"),
-            tabBarIcon: ({ color, size }) => (
-              <Feather name="users" color={color} size={size} />
-            ),
-          }}
-        />
-      ) : null}
-
       {/* productos */}
       <Tabs.Screen
         name="productos/index"
@@ -145,24 +132,16 @@ export default function AppLayout() {
         name="productos/editar/[id]"
         options={{ href: null }}
       />
-
-
-
     <Tabs.Screen
       name="(admin)"
       options={{
-        title: t("admin"),
-        tabBarLabel: t("admin"),
+        title: t("clients"),
+        tabBarLabel: t("clients"),
         tabBarIcon: ({ color, size }) => (
-          <Feather name="shield" color={color} size={size} />
+          <Feather name="users" color={color} size={size} />
         ),
-        href: esAdmin ? undefined : null, // si no es admin, no aparece
+        href: esAdmin ? "/clientes" : null, // si no es admin, no aparece
       }}
-    />
-
-    <Tabs.Screen
-      name="(customer)"
-      options={{ href: null }}
     />
 
       {/* para esconder del tab que sino aparecen abajo y no quiero eso  */}
@@ -175,12 +154,6 @@ export default function AppLayout() {
         name="preferences"
         options={{ href: null, headerShown: false }}
       />
-
-      <Tabs.Screen
-        name="(admin)/preferences"
-        options={{ href: null, headerShown: false }}
-      />
-
 
     </Tabs>
   );

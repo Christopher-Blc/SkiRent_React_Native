@@ -126,5 +126,8 @@
   "categoryFallback": "Kategorie",
   "newClientCreatedWithName": "Ein neuer Kunde wurde erstellt",
   "newClientCreated": "Ein neuer Kunde wurde erstellt",
-  "sendNotificationToAdminsFailed": "Konnte Benachrichtigung nicht an Admins senden:"
+  "sendNotificationToAdminsFailed": "Konnte Benachrichtigung nicht an Admins senden:",
+  "units": "Einheiten",
+  "addToCart": "Zum Warenkorb hinzufügen",
+  "noDescription": "Keine Beschreibung"
 }

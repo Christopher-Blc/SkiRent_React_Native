@@ -126,5 +126,9 @@
   "categoryFallback": "Category {{id}}",
   "newClientCreatedWithName": "A new client has been created: {{name}}",
   "newClientCreated": "A new client has been created",
-  "sendNotificationToAdminsFailed": "Could not send notification to admins:"
+  "sendNotificationToAdminsFailed": "Could not send notification to admins:",
+  "units": "Units",
+  "addToCart": "Add to cart",
+  "noDescription": "No description"
 }
+

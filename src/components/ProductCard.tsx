@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
+import { useTranslation } from "react-i18next"; 
 
 interface ProductCardProps {
   image?: string | null;
@@ -14,6 +15,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ image, title, price, description, onEdit }: ProductCardProps) => {
+  const { t } = useTranslation();
   const [quantity, setQuantity] = useState<number>(0);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
@@ -40,7 +42,7 @@ export const ProductCard = ({ image, title, price, description, onEdit }: Produc
               "https://cdn-icons-png.flaticon.com/512/149/149071.png",
           }}
           style={styles.image}
-          resizeMode="contain"
+          resizeMode="repeat"
         />
       </View>
 
@@ -55,14 +57,14 @@ export const ProductCard = ({ image, title, price, description, onEdit }: Produc
       </View>
 
       <Text style={[styles.description, { color: theme.colors.textSecondary }]}>
-        {description || "Sin descripcion"}
+        {description || t("noDescription")}
       </Text>
 
       <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]} onPress={handleAdd}>
-        <Text style={[styles.buttonText, { color: theme.colors.primaryContrast }]}>Anadir al carrito</Text>
+        <Text style={[styles.buttonText, { color: theme.colors.primaryContrast }]}>{t("addToCart")}</Text>
       </TouchableOpacity>
 
-      <Text style={[styles.quantity, { color: theme.colors.textPrimary }]}>Unidades: {quantity}</Text>
+      <Text style={[styles.quantity, { color: theme.colors.textPrimary }]}>{t("units")} {quantity}</Text>
     </View>
   );
 };
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
   },
   imageWrap: {
     width: "100%",
-    height: 170,
+    height:300,
     borderRadius: 16,
     borderWidth: 1,
     overflow: "hidden",
