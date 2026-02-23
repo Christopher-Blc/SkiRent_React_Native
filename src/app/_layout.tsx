@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Stack } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { QueryProvider } from "@/providers/QueryProvider";
+import "../../services/i18next";
 
 function Navegacion() {
   const { isLoading, isAuthenticated } = useAuth();

@@ -1,0 +1,19 @@
+{
+  "welcome": "Bienvenue",
+  "email": "E-mail",
+  "password": "Mot de passe",
+  "exampleEmail": "nom@exemple.com",
+  "forgotPassword": "Mot de passe oublié ?",
+  "login": "Se connecter",
+  "orContinueWith": "Ou continuer avec",
+  "noAccount": "Vous n'avez pas de compte ?",
+  "registerNow": "Inscrivez-vous maintenant",
+  "settingsTitle": "Parametres",
+  "themeSection": "Theme",
+  "themeLight": "Clair",
+  "themeDark": "Sombre",
+  "generalPreferences": "Preferences generales",
+  "languageSection": "Langue",
+  "notifications": "Notifications",
+  "enabled": "Activees"
+}

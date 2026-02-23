@@ -9,10 +9,13 @@ import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useThemeStore } from '@/store/themeStore';
 import { getTheme } from '@/styles/theme';
+import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 //pagina de login, se muestra mientras se verifica el estado de autenticacion, si no esta autenticado se muestra el formulario de login, si esta autenticado se redirige a la pagina principal del app
 export default function Login() {
 
+  const { t } = useTranslation();
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
   const mode = useThemeStore((s) => s.mode);
@@ -47,7 +50,7 @@ export default function Login() {
         </View>
 
         {/* Title */}
-        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Bienvenido</Text>
+        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{t("welcome")}</Text>
 
         {/* Subtitle */}
         <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
@@ -63,11 +66,11 @@ export default function Login() {
 
         {/* Email label */}
         <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-          Correo Electrónico
+          {t("email")}
         </Text>
 
         <TextInputRectangle
-          placeholder="nombre@ejemplo.com"
+          placeholder={t("exampleEmail")}
           iconLeft="mail"
           onChangeText={setEmail}
         />
@@ -82,10 +85,10 @@ export default function Login() {
         {/* Forgot password row */}
         <View style={styles.passwordRow}>
         <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-          Contraseña
+          {t("password")}
         </Text>
           <Text style={[styles.forgot, { color: theme.colors.textSecondary }]}>
-            ¿Olvidaste tu contraseña?
+            {t("forgotPassword")}
           </Text>
         </View>
 
@@ -105,7 +108,7 @@ export default function Login() {
 
         {/* Login button */}
         <ButtonRectangular
-          text="Iniciar Sesión"
+          text={t("login")}
           colorBG={theme.colors.primary}
           colorTxt={theme.colors.primaryContrast}
           onPressed={login}
@@ -115,7 +118,7 @@ export default function Login() {
         <View style={styles.dividerRow}>
           <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
           <Text style={[styles.dividerText, { color: theme.colors.textSecondary }]}>
-            O continúa con
+            {t("orContinueWith")}
           </Text>
           <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
         </View>
@@ -134,9 +137,9 @@ export default function Login() {
 
         {/* Bottom text */}
         <Text style={[styles.bottomText, { color: theme.colors.textSecondary }]}>
-          ¿No tienes una cuenta?{" "}
+          {t("noAccount")}{" "}
           <Text style={[styles.register, { color: theme.colors.primary }]}>
-            Regístrate ahora
+            {t("registerNow")}
           </Text>
         </Text>
 

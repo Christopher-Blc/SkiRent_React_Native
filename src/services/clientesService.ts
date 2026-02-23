@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { Cliente } from "@/types/Clients";
+import i18next from "i18next";
 
 const selectCliente =
   "id, role_id, name, surname, email, phone_number, display_name, avatar, created_at";
@@ -133,7 +134,7 @@ export const clientesService = {
     });
 
     if (error) throw new Error(error.message);
-    if (!data) throw new Error("No se pudo crear el cliente");
+    if (!data) throw new Error(i18next.t("createClientFailed"));
     if (data.error) throw new Error(data.error);
 
     return mapDb(data.data ?? data);
@@ -184,7 +185,7 @@ export const clientesService = {
       .select("id");
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) {
-      throw new Error("No se pudo eliminar (sin permisos o no existe)");
+      throw new Error(i18next.t("deleteClientNoPermissionOrNotFound"));
     }
     return true;
   },

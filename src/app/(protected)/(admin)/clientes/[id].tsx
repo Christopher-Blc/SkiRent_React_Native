@@ -13,6 +13,7 @@ import { Feather } from "@expo/vector-icons";
 import { font } from "@/styles/typography";
 import { supabase } from "@/lib/supabase";
 import { useReservasByCliente, useReservasCount } from "@/hooks/queries/useReservas";
+import { useTranslation } from "react-i18next";
 
 export default function ClienteDetalle() {
   const router = useRouter();
@@ -50,6 +51,7 @@ export default function ClienteDetalle() {
     avatarUploading,
   } = useEdit();
 
+  const { t } = useTranslation();
   const { data: reservas } = useReservasByCliente(clientId as string, 5);
   const { data: reservasCount } = useReservasCount(clientId as string);
   const pedidos = (reservas ?? []).map((r) => `#${r.id} · ${r.estado ?? "Sin estado"}`);
@@ -62,14 +64,14 @@ export default function ClienteDetalle() {
   if (cargando) {
     return (
       <View style={[styles.page, { backgroundColor: theme.colors.background }]}>
-        <Text style={{ color: theme.colors.textPrimary }}>Cargando...</Text>
+        <Text style={{ color: theme.colors.textPrimary }}>{t("loading")}...</Text>
       </View>
     );
   }
   if (!cliente) {
     return (
       <View style={[styles.page, { backgroundColor: theme.colors.background }]}>
-        <Text style={{ color: theme.colors.textPrimary }}>Cliente no encontrado</Text>
+        <Text style={{ color: theme.colors.textPrimary }}>{t("clientNotFound")}</Text>
       </View>
     );
   }
@@ -78,7 +80,7 @@ export default function ClienteDetalle() {
     <>
       <Stack.Screen
         options={{
-          title: "Cliente " + name,
+          title: t("client") + " " + name,
           headerTitleAlign: "center",
           headerLeft: () => (
             <Pressable
@@ -99,7 +101,7 @@ export default function ClienteDetalle() {
           </Dialog.Title>
           <Dialog.Content>
             <Text style={[styles.dialogText, { color: theme.colors.textSecondary }]}>
-              Seguro que quieres eliminar este cliente
+              {t("confirmDeleteClient")}
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
@@ -136,7 +138,7 @@ export default function ClienteDetalle() {
         >
           <View style={[styles.handle, { backgroundColor: theme.colors.border }]} />
           <Text style={[styles.sheetTitle, { color: theme.colors.textPrimary }]}>
-            Editar cliente
+            {t("editClient")}
           </Text>
 
           <View style={styles.avatarRow}>
@@ -155,7 +157,7 @@ export default function ClienteDetalle() {
               )}
             </View>
             <ButtonRectangular
-              text={avatarUploading ? "Subiendo..." : "Cambiar foto"}
+              text={avatarUploading ? t("uploading") : t("changeImage")}
               colorBG={theme.colors.surface}
               colorTxt={theme.colors.textPrimary}
               colorBorder={theme.colors.border}
@@ -171,21 +173,21 @@ export default function ClienteDetalle() {
           >
             {/* scrollview con los inputs del formulario */}
             <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-              <TextInputRectangle placeholder="Nombre" value={name} onChangeText={setName} />
+              <TextInputRectangle placeholder={t("name")} value={name} onChangeText={setName} />
               <View style={{ marginTop: 14 }} />
 
-              <TextInputRectangle placeholder="Apellidos" value={surname} onChangeText={setSurname} />
+              <TextInputRectangle placeholder={t("surname")} value={surname} onChangeText={setSurname} />
               <View style={{ marginTop: 14 }} />
 
               <TextInputRectangle
-                placeholder="Nickname"
+                placeholder={t("nickname")}
                 value={displayName}
                 onChangeText={setDisplayName}
               />
               <View style={{ marginTop: 14 }} />
 
               <TextInputRectangle
-                placeholder="Email"
+                placeholder={t("email")}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -194,7 +196,7 @@ export default function ClienteDetalle() {
               <View style={{ marginTop: 14 }} />
 
               <TextInputRectangle
-                placeholder="Teléfono"
+                placeholder={t("phoneNumber")}
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
                 keyboardType="phone-pad"
@@ -202,7 +204,7 @@ export default function ClienteDetalle() {
 
               <View style={{ marginTop: 14 }}>
                 <ButtonRectangular
-                  text="Guardar"
+                  text={t("save")}
                   colorBG={theme.colors.primary}
                   colorTxt={theme.colors.primaryContrast}
                   onPressed={guardar}
@@ -210,7 +212,7 @@ export default function ClienteDetalle() {
 
                 <View style={{ height: 10 }} />
                 <ButtonRectangular
-                  text="Cancelar"
+                  text={t("cancel")}
                   colorBG={theme.colors.surface}
                   colorTxt={theme.colors.textPrimary}
                   colorBorder={theme.colors.border}

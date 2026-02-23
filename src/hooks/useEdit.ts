@@ -10,23 +10,24 @@ import {
   useDeleteCliente,
   useUpdateCliente,
 } from "@/hooks/queries/useClientes";
+import { useTranslation } from "react-i18next";
 
 const H = Dimensions.get("window").height;
-
 const telefonoRegex = /^\+?\d{7,15}$/;
 
-const clienteSchema = z.object({
-  name: z.string().min(1, "El nombre es obligatorio"),
-  surname: z.string().min(1, "Los apellidos son obligatorios"),
-  displayName: z.string().min(1, "El nickname es obligatorio"),
-  email: z.string().min(1, "El email es obligatorio").email("Email no válido"),
-  phoneNumber: z
-    .string()
-    .min(1, "El teléfono es obligatorio")
-    .regex(telefonoRegex, "Teléfono no válido"),
-});
-
 export function useEdit() {
+  const { t } = useTranslation();
+  const clienteSchema = z.object({
+    name: z.string().min(1, t("nameRequired")),
+    surname: z.string().min(1, t("surnameRequired")),
+    displayName: z.string().min(1, t("nicknameRequired")),
+    email: z.string().min(1, t("emailRequired")).email(t("invalidEmail")),
+    phoneNumber: z
+      .string()
+      .min(1, t("phoneRequired"))
+      .regex(telefonoRegex, t("invalidPhone")),
+  });
+
   // id desde la ruta
   const { id } = useLocalSearchParams();
   const clientId = Array.isArray(id) ? id[0] : id;
@@ -114,8 +115,8 @@ export function useEdit() {
       await deleteMutation.mutateAsync();
       router.replace("/clientes");
     } catch (e: any) {
-      const msg = e?.message || e?.error_description || "No se pudo eliminar el cliente";
-      Alert.alert("Error", msg);
+      const msg = e?.message || e?.error_description || t("deleteClientFailed");
+      Alert.alert(t("error"), msg);
     }
   };
 
@@ -131,7 +132,7 @@ export function useEdit() {
     });
 
     if (!result.success) {
-      Alert.alert("Error", result.error.issues[0].message);
+      Alert.alert(t("error"), result.error.issues[0].message);
       return;
     }
 
@@ -142,16 +143,16 @@ export function useEdit() {
       await cargarCliente();
     } catch (e: any) {
       if (e?.message === "EMAIL_DUPLICADO") {
-        Alert.alert("Email duplicado", "Ya existe un cliente con ese email");
+        Alert.alert(t("duplicateEmailTitle"), t("duplicateEmailMessage"));
         return;
       }
 
       if (e?.message === "TELEFONO_DUPLICADO") {
-        Alert.alert("Teléfono duplicado", "Ya existe un cliente con ese teléfono");
+        Alert.alert(t("duplicatePhoneTitle"), t("duplicatePhoneMessage"));
         return;
       }
 
-      Alert.alert("Error", "No se ha podido crear el cliente");
+      Alert.alert(t("error"), t("saveClientFailed"));
     }
   };
 
@@ -160,7 +161,7 @@ export function useEdit() {
 
   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (status !== "granted") {
-    Alert.alert("Permiso requerido", "Se necesita acceso a tus fotos para cambiar el avatar.");
+    Alert.alert(t("permissionsRequired"), t("permissionsRequiredMessage"));
     return;
   }
 
@@ -200,8 +201,8 @@ export function useEdit() {
       await updateMutation.mutateAsync({ avatar: filePath });
       await cargarCliente();
     } catch (e: any) {
-    const msg = e?.message || e?.error_description || "No se pudo subir la imagen";
-    Alert.alert("Error", msg);
+    const msg = e?.message || e?.error_description || t("imageUploadFailed");
+    Alert.alert(t("error"), msg);
   } finally {
     setAvatarUploading(false);
   }

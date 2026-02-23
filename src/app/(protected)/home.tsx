@@ -3,13 +3,15 @@ import { Feather } from "@expo/vector-icons";
 import { useUserStore } from "@/store/userStore";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
-import { font } from "@/styles/typography";
+import {styles } from "@/styles/home.styles";
 import { useRoles } from "@/hooks/queries/useRoles";
 import { useReservasCount } from "@/hooks/queries/useReservas";
-import { ButtonRectangular } from "@/components/ButtonRectangular";
+import { useTranslation } from "react-i18next";
+
 
 
 export default function Home() {
+  const {t} = useTranslation();
   const user = useUserStore((s) => s.user);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
@@ -20,7 +22,7 @@ export default function Home() {
     error: pedidosError,
   } = useReservasCount(user?.id ?? "");
 
-  const nombre = user?.displayName ?? user?.name ?? "Usuario";
+  const nombre = user?.displayName ?? user?.name ?? t("users");
   const roleName = rolesLoading
     ? "..."
     : user
@@ -32,13 +34,13 @@ export default function Home() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
         <Text style={[styles.kicker, { color: theme.colors.textSecondary }]}>
-          Panel principal
+          {t("mainPanel")}
         </Text>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-          Bienvenido, {nombre}
+          {t("welcome")}, {nombre}
         </Text>
         <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-          Gestiona tu cuenta y accede a tus módulos desde aquí
+          {t("manageAccountAndModules")}
         </Text>
       </View>
 
@@ -56,7 +58,7 @@ export default function Home() {
             {pedidosValue}
           </Text>
           <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-            Pedidos
+            {t("reservations")}
           </Text>
         </View>
 
@@ -73,7 +75,7 @@ export default function Home() {
             {roleName}
           </Text>
           <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-            Rol
+            {t("role")}
           </Text>
         </View>
       </View>
@@ -85,12 +87,12 @@ export default function Home() {
         ]}
       >
         <Text style={[styles.cardTitle, { color: theme.colors.textPrimary }]}>
-          Detalles de la cuenta
+          {t("accountDetails")}
         </Text>
 
         <View style={[styles.row, { borderTopColor: theme.colors.border }]}>
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Email
+            {t("email")}
           </Text>
           <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
             {user?.email ?? "-"}
@@ -99,10 +101,10 @@ export default function Home() {
 
         <View style={[styles.row, { borderTopColor: theme.colors.border }]}>
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Estado
+            {t("state")}
           </Text>
           <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
-            Cuenta activa
+            {t("accountActive")}
           </Text>
         </View>
       </View>
@@ -110,107 +112,3 @@ export default function Home() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 22,
-  },
-
-  header: {
-    paddingTop: 12,
-    paddingBottom: 16,
-  },
-
-  kicker: {
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 0.6,
-    marginBottom: 6,
-    fontFamily: font.display,
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: "800",
-    letterSpacing: -0.2,
-    fontFamily: font.display,
-  },
-
-  subtitle: {
-    marginTop: 8,
-    fontSize: 15,
-    lineHeight: 20,
-    fontFamily: font.body,
-  },
-
-  card: {
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
-  },
-
-  cardTitle: {
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.6,
-    textTransform: "uppercase",
-    fontFamily: font.display,
-    marginBottom: 12,
-  },
-
-  statsRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 14,
-  },
-  statCard: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 18,
-    borderWidth: 1,
-  },
-  statIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-  },
-  statValue: {
-    fontSize: 16,
-    fontWeight: "800",
-    fontFamily: font.display,
-  },
-  statLabel: {
-    fontSize: 12,
-    fontFamily: font.body,
-  },
-
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    borderTopWidth: 1,
-  },
-
-  label: {
-    fontSize: 13,
-    fontFamily: font.body,
-  },
-
-  value: {
-    fontSize: 13,
-    fontWeight: "700",
-    fontFamily: font.display,
-  },
-
-  page: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  map: {
-    flex: 1
-  }
-});

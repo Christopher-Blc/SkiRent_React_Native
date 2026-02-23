@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import { AuthError } from "@/services/authService";
+import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "react-i18next";
+
 
 export const useLogin = () => {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +18,7 @@ export const useLogin = () => {
 
     try {
       await login(email.trim(), password);
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof AuthError) {
         if (error.code === "EMAIL_INVALID" || error.code === "USER_NOT_FOUND") {
           setEmailError(error.message);
@@ -28,7 +31,7 @@ export const useLogin = () => {
         }
       }
 
-      setPasswordError("No se pudo iniciar sesión");
+      setPasswordError(t("loginFailed"));
     }
   };
 

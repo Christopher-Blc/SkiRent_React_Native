@@ -28,11 +28,13 @@ import {
 } from "@/services/productsService";
 import { supabase } from "@/lib/supabase";
 import type { CategoriaProducto } from "@/types/Product";
+import { useTranslation } from "react-i18next";
 
 const PRODUCT_IMAGES_BUCKET = "userData";
 const fallbackImage = "https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
 
 export default function CrearProductoScreen() {
+  const { t } = useTranslation();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
 
@@ -52,7 +54,7 @@ export default function CrearProductoScreen() {
   const [imageUploading, setImageUploading] = useState(false);
 
   const selectedCategoriaNombre = useMemo(
-    () => categorias.find((c) => c.id === categoriaId)?.nombre ?? "Selecciona una categoria",
+    () => categorias.find((c) => c.id === categoriaId)?.nombre ?? t("selectCategory"),
     [categorias, categoriaId]
   );
 
@@ -63,7 +65,7 @@ export default function CrearProductoScreen() {
         const data = await listProductCategories();
         setCategorias(data);
       } catch (e: any) {
-        Alert.alert("Error", e?.message || "No se pudieron cargar las categorias");
+        Alert.alert(t("error"), e?.message || t("categoriesLoadFailed"));
       } finally {
         setCategoriasLoading(false);
       }
@@ -81,7 +83,7 @@ export default function CrearProductoScreen() {
   const pickAndUploadImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permiso requerido", "Se necesita acceso a las fotos.");
+      Alert.alert(t("permissionsRequired"), t("permissionsRequiredMessage"));
       return;
     }
 
@@ -119,7 +121,7 @@ export default function CrearProductoScreen() {
       const publicUrl = supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(filePath).data.publicUrl;
       setImageUrl(publicUrl);
     } catch (e: any) {
-      Alert.alert("Error", e?.message || "No se pudo subir la imagen");
+      Alert.alert(t("error"), e?.message || t("imageUploadFailed"));
     } finally {
       setImageUploading(false);
     }
@@ -129,17 +131,17 @@ export default function CrearProductoScreen() {
     const nombreLimpio = nombre.trim();
 
     if (!nombreLimpio) {
-      Alert.alert("Error", "El nombre es obligatorio");
+      Alert.alert(t("error"), t("productNameRequired"));
       return;
     }
     if (!categoriaId) {
-      Alert.alert("Error", "Selecciona una categoria");
+      Alert.alert(t("error"), t("selectCategory"));
       return;
     }
 
     const precioNum = precio.trim() ? Number(precio) : undefined;
     if (precio.trim() && (!Number.isFinite(precioNum) || (precioNum ?? 0) < 0)) {
-      Alert.alert("Error", "El precio debe ser un numero valido");
+      Alert.alert(t("error"), t("invalidPrice"));
       return;
     }
 
@@ -158,7 +160,7 @@ export default function CrearProductoScreen() {
 
       router.replace("/productos");
     } catch (e: any) {
-      Alert.alert("Error", e?.message || "No se pudo guardar el producto");
+      Alert.alert(t("error"), e?.message || t("productSaveFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -166,11 +168,11 @@ export default function CrearProductoScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Crear producto" }} />
+      <Stack.Screen options={{ title: t("createProduct") }} />
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <View style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-            <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Nuevo producto</Text>
+            <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{t("newProduct")}</Text>
 
             <View style={styles.imageRow}>
               <View style={[styles.previewWrap, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
@@ -178,7 +180,7 @@ export default function CrearProductoScreen() {
               </View>
 
               <ButtonRectangular
-                text={imageUploading ? "Subiendo..." : "Cambiar imagen"}
+                text={imageUploading ? t("uploading") + "..." : t("changeImage")}
                 colorBG={theme.colors.surface}
                 colorTxt={theme.colors.textPrimary}
                 colorBorder={theme.colors.border}
@@ -187,7 +189,7 @@ export default function CrearProductoScreen() {
               />
             </View>
 
-            <TextInputRectangle placeholder="Nombre" value={nombre} onChangeText={setNombre} autoCapitalize="words" />
+            <TextInputRectangle placeholder={t("name")} value={nombre} onChangeText={setNombre} autoCapitalize="words" />
             <View style={styles.gap} />
 
             <TouchableOpacity
@@ -196,20 +198,20 @@ export default function CrearProductoScreen() {
               disabled={categoriasLoading}
             >
               <Text style={[styles.selectorText, { color: theme.colors.textPrimary }]}>
-                {categoriasLoading ? "Cargando categorias..." : selectedCategoriaNombre}
+                {categoriasLoading ? t("loadingImages") + "..." : selectedCategoriaNombre}
               </Text>
               <Feather name="chevron-down" size={18} color={theme.colors.textSecondary} />
             </TouchableOpacity>
 
             <View style={styles.gap} />
-            <TextInputRectangle placeholder="Marca" value={marca} onChangeText={setMarca} autoCapitalize="words" />
+            <TextInputRectangle placeholder={t("brand")} value={marca} onChangeText={setMarca} autoCapitalize="words" />
             <View style={styles.gap} />
-            <TextInputRectangle placeholder="Modelo" value={modelo} onChangeText={setModelo} autoCapitalize="words" />
+            <TextInputRectangle placeholder={t("model")} value={modelo} onChangeText={setModelo} autoCapitalize="words" />
             <View style={styles.gap} />
-            <TextInputRectangle placeholder="Descripcion" value={descripcion} onChangeText={setDescripcion} autoCapitalize="sentences" />
+            <TextInputRectangle placeholder={t("description")} value={descripcion} onChangeText={setDescripcion} autoCapitalize="sentences" />
             <View style={styles.gap} />
             <TextInputRectangle
-              placeholder="Precio"
+              placeholder={t("price")}
               value={precio}
               onChangeText={setPrecio}
               keyboardType="phone-pad"
@@ -225,21 +227,21 @@ export default function CrearProductoScreen() {
               <View style={[styles.activePill, { backgroundColor: activo ? theme.colors.primary : theme.colors.card, borderColor: theme.colors.border }]}
               >
                 <Text style={{ color: activo ? theme.colors.primaryContrast : theme.colors.textSecondary, fontFamily: font.display, fontSize: 12 }}>
-                  {activo ? "SI" : "NO"}
+                  {activo ? t("yesCaps") : t("noCaps")}
                 </Text>
               </View>
             </Pressable>
 
             <View style={styles.actions}>
               <ButtonRectangular
-                text={isSaving ? "Guardando..." : "Guardar"}
+                text={isSaving ? t("saving") + "..." : t("save")}
                 colorBG={theme.colors.primary}
                 colorTxt={theme.colors.primaryContrast}
                 onPressed={guardarProducto}
               />
               <View style={{ height: 10 }} />
               <ButtonRectangular
-                text="Cancelar"
+                text={t("cancel")}
                 colorBG={theme.colors.surface}
                 colorTxt={theme.colors.textPrimary}
                 colorBorder={theme.colors.border}
@@ -253,7 +255,7 @@ export default function CrearProductoScreen() {
       <Modal transparent visible={categoriaPickerVisible} animationType="fade" onRequestClose={() => setCategoriaPickerVisible(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setCategoriaPickerVisible(false)}>
           <Pressable style={[styles.modalCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-            <Text style={[styles.modalTitle, { color: theme.colors.textPrimary }]}>Selecciona categoria</Text>
+            <Text style={[styles.modalTitle, { color: theme.colors.textPrimary }]}>{t("selectCategory")}</Text>
             {categoriasLoading ? (
               <View style={styles.modalLoading}>
                 <ActivityIndicator size="small" color={theme.colors.primary} />

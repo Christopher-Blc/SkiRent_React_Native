@@ -30,11 +30,14 @@ import {
 import { supabase } from "@/lib/supabase";
 import type { CategoriaProducto } from "@/types/Product";
 import { font } from "@/styles/typography";
+import { useTranslation } from "react-i18next";
+
 
 const PRODUCT_IMAGES_BUCKET = "userData";
 const fallbackImage = "https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
 
 export default function EditarProductoScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams();
   const productId = Number(Array.isArray(id) ? id[0] : id);
 
@@ -58,7 +61,7 @@ export default function EditarProductoScreen() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const selectedCategoriaNombre = useMemo(
-    () => categorias.find((c) => c.id === categoriaId)?.nombre ?? "Selecciona una categoria",
+    () => categorias.find((c) => c.id === categoriaId)?.nombre ?? t("selectCategory"),
     [categorias, categoriaId]
   );
 
@@ -71,7 +74,7 @@ export default function EditarProductoScreen() {
   useEffect(() => {
     const load = async () => {
       if (!Number.isFinite(productId)) {
-        Alert.alert("Error", "ID de producto invalido");
+        Alert.alert(t("error"), t("invalidProductId"));
         router.back();
         return;
       }
@@ -88,7 +91,7 @@ export default function EditarProductoScreen() {
         setCategorias(categories);
 
         if (!item) {
-          Alert.alert("No encontrado", "El producto no existe");
+          Alert.alert(t("notFound"), t("productNotFound"));
           router.back();
           return;
         }
@@ -102,7 +105,7 @@ export default function EditarProductoScreen() {
         setActivo(item.activo);
         setImageUrl(item.image_url ?? null);
       } catch (e: any) {
-        Alert.alert("Error", e?.message || "No se pudo cargar el producto");
+        Alert.alert(t("error"), e?.message || t("productLoadFailed"));
         router.back();
       } finally {
         setCategoriasLoading(false);
@@ -116,7 +119,7 @@ export default function EditarProductoScreen() {
   const pickAndUploadImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permiso requerido", "Se necesita acceso a las fotos.");
+      Alert.alert(t("permissionsRequired"), t("permissionsRequiredMessage"));
       return;
     }
 
@@ -154,7 +157,7 @@ export default function EditarProductoScreen() {
       const publicUrl = supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(filePath).data.publicUrl;
       setImageUrl(publicUrl);
     } catch (e: any) {
-      Alert.alert("Error", e?.message || "No se pudo subir la imagen");
+      Alert.alert(t("error"), e?.message || t("imageUploadFailed"));
     } finally {
       setImageUploading(false);
     }
@@ -164,17 +167,17 @@ export default function EditarProductoScreen() {
     const nombreLimpio = nombre.trim();
 
     if (!nombreLimpio) {
-      Alert.alert("Error", "El nombre es obligatorio");
+      Alert.alert(t("error"), t("productNameRequired"));
       return;
     }
     if (!categoriaId) {
-      Alert.alert("Error", "Selecciona una categoria");
+      Alert.alert(t("error"), t("selectCategory"));
       return;
     }
 
     const precioNum = precio.trim() ? Number(precio) : undefined;
     if (precio.trim() && (!Number.isFinite(precioNum) || (precioNum ?? 0) < 0)) {
-      Alert.alert("Error", "El precio debe ser un numero valido");
+      Alert.alert(t("error"), t("invalidPrice"));
       return;
     }
 
@@ -193,7 +196,7 @@ export default function EditarProductoScreen() {
 
       router.replace("/productos");
     } catch (e: any) {
-      Alert.alert("Error", e?.message || "No se pudo guardar el producto");
+      Alert.alert(t("error"), e?.message || t("productSaveFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -201,7 +204,7 @@ export default function EditarProductoScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Editar producto" }} />
+      <Stack.Screen options={{ title: t("editProduct") }} />
       {isLoading ? (
         <View style={[styles.loadingWrap, { backgroundColor: theme.colors.background }]}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -210,7 +213,7 @@ export default function EditarProductoScreen() {
         <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
             <View style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-              <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Editar producto</Text>
+              <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{t("editProduct")}</Text>
 
               <View style={styles.imageRow}>
                 <View style={[styles.previewWrap, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
@@ -218,7 +221,7 @@ export default function EditarProductoScreen() {
                 </View>
 
                 <ButtonRectangular
-                  text={imageUploading ? "Subiendo..." : "Cambiar imagen"}
+                  text={imageUploading ? t("uploading") : t("changeImage")}
                   colorBG={theme.colors.surface}
                   colorTxt={theme.colors.textPrimary}
                   colorBorder={theme.colors.border}
@@ -227,7 +230,7 @@ export default function EditarProductoScreen() {
                 />
               </View>
 
-              <TextInputRectangle placeholder="Nombre" value={nombre} onChangeText={setNombre} autoCapitalize="words" />
+              <TextInputRectangle placeholder={t("name")} value={nombre} onChangeText={setNombre} autoCapitalize="words" />
               <View style={styles.gap} />
 
               <TouchableOpacity
@@ -236,20 +239,20 @@ export default function EditarProductoScreen() {
                 disabled={categoriasLoading}
               >
                 <Text style={[styles.selectorText, { color: theme.colors.textPrimary }]}>
-                  {categoriasLoading ? "Cargando categorias..." : selectedCategoriaNombre}
+                  {categoriasLoading ? t("loadingCategories") + "..." : selectedCategoriaNombre}
                 </Text>
                 <Feather name="chevron-down" size={18} color={theme.colors.textSecondary} />
               </TouchableOpacity>
 
               <View style={styles.gap} />
-              <TextInputRectangle placeholder="Marca" value={marca} onChangeText={setMarca} autoCapitalize="words" />
+              <TextInputRectangle placeholder={t("brand")} value={marca} onChangeText={setMarca} autoCapitalize="words" />
               <View style={styles.gap} />
-              <TextInputRectangle placeholder="Modelo" value={modelo} onChangeText={setModelo} autoCapitalize="words" />
+              <TextInputRectangle placeholder={t("model")} value={modelo} onChangeText={setModelo} autoCapitalize="words" />
               <View style={styles.gap} />
-              <TextInputRectangle placeholder="Descripcion" value={descripcion} onChangeText={setDescripcion} autoCapitalize="sentences" />
+              <TextInputRectangle placeholder={t("description")} value={descripcion} onChangeText={setDescripcion} autoCapitalize="sentences" />
               <View style={styles.gap} />
               <TextInputRectangle
-                placeholder="Precio"
+                placeholder={t("price")}
                 value={precio}
                 onChangeText={setPrecio}
                 keyboardType="phone-pad"
@@ -261,25 +264,25 @@ export default function EditarProductoScreen() {
                 onPress={() => setActivo((prev) => !prev)}
                 style={[styles.activeRow, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
               >
-                <Text style={[styles.activeText, { color: theme.colors.textPrimary }]}>Activo</Text>
+                <Text style={[styles.activeText, { color: theme.colors.textPrimary }]}>{t("active")}</Text>
                 <View style={[styles.activePill, { backgroundColor: activo ? theme.colors.primary : theme.colors.card, borderColor: theme.colors.border }]}
                 >
                   <Text style={{ color: activo ? theme.colors.primaryContrast : theme.colors.textSecondary, fontFamily: font.display, fontSize: 12 }}>
-                    {activo ? "SI" : "NO"}
+                    {activo ? t("yesCaps") : t("noCaps")}
                   </Text>
                 </View>
               </Pressable>
 
               <View style={styles.actions}>
                 <ButtonRectangular
-                  text={isSaving ? "Guardando..." : "Guardar"}
+                  text={isSaving ? t("saving") : t("save")}
                   colorBG={theme.colors.primary}
                   colorTxt={theme.colors.primaryContrast}
                   onPressed={guardarProducto}
                 />
                 <View style={{ height: 10 }} />
                 <ButtonRectangular
-                  text="Cancelar"
+                  text={t("cancel")}
                   colorBG={theme.colors.surface}
                   colorTxt={theme.colors.textPrimary}
                   colorBorder={theme.colors.border}
@@ -294,7 +297,7 @@ export default function EditarProductoScreen() {
       <Modal transparent visible={categoriaPickerVisible} animationType="fade" onRequestClose={() => setCategoriaPickerVisible(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setCategoriaPickerVisible(false)}>
           <Pressable style={[styles.modalCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-            <Text style={[styles.modalTitle, { color: theme.colors.textPrimary }]}>Selecciona categoria</Text>
+            <Text style={[styles.modalTitle, { color: theme.colors.textPrimary }]}>{t("selectCategory")}</Text>
             {categoriasLoading ? (
               <View style={styles.modalLoading}>
                 <ActivityIndicator size="small" color={theme.colors.primary} />

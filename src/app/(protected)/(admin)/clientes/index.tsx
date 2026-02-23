@@ -8,9 +8,11 @@ import { getTheme } from "@/styles/theme";
 import { useClientesList } from "@/hooks/queries/useClientes";
 import { useUserStore } from "@/store/userStore";
 import { styles } from "@/styles/create.styles";
+import { useTranslation } from "react-i18next";
 
 //pantalla que muestra la lista de clientes
 export default function Clientes() {
+  const { t } = useTranslation();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const user = useUserStore((s) => s.user);
@@ -26,10 +28,10 @@ export default function Clientes() {
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.header}>
           <Text style={[styles.titleText, { color: theme.colors.textPrimary }]}>
-            Clientes
+            {t("clients")}
           </Text>
           <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-            Gestiona y actualiza la base de clientes
+            {t("manageClients")}
           </Text>
           <View style={styles.metaRow}>
             <View
@@ -51,13 +53,13 @@ export default function Clientes() {
 
         {isLoading ? (
           <Text style={{ color: theme.colors.textSecondary, paddingHorizontal: 16 }}>
-            Cargando...
+            {t("loading")}...
           </Text>
         ) : null}
         {error ? (
           <Pressable onPress={() => refetch()}>
             <Text style={{ color: theme.colors.error, paddingHorizontal: 16 }}>
-              Error al cargar. Toca para reintentar.
+              {t("loadingError")}
             </Text>
           </Pressable>
         ) : null}

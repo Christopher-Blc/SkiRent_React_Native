@@ -20,6 +20,7 @@ import { supabase } from "@/lib/supabase";
 const PRODUCT_IMAGES_BUCKET = "userData";
 const fallbackImage = "https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
 
+//Pagina con lista de productos
 export default function ProductosListScreen() {
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);

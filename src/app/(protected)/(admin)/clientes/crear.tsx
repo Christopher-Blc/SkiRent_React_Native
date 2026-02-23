@@ -11,26 +11,27 @@ import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 import { useCreateCliente } from "@/hooks/queries/useClientes";
+import { useTranslation } from "react-i18next";
 
 const telefonoRegex = /^\+?\d{7,15}$/;
-const schema = z.object({
-  name: z.string().min(1, "El nombre es obligatorio"),
-  surname: z.string().min(1, "Los apellidos son obligatorios"),
-  displayName: z.string().min(1, "El nickname es obligatorio"),
-  email: z.string().min(1, "El email es obligatorio").email("Email no válido"),
-  phoneNumber: z
-    .string()
-    .min(1, "El teléfono es obligatorio")
-    .regex(telefonoRegex, "Teléfono no válido"),
-});
-
-type FormValues = z.infer<typeof schema>;
 
 export default function CrearClienteScreen() {
+  const { t } = useTranslation();
   const [guardando, setGuardando] = useState(false);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const createMutation = useCreateCliente();
+  const schema = z.object({
+    name: z.string().min(1, t("nameRequired")),
+    surname: z.string().min(1, t("surnameRequired")),
+    displayName: z.string().min(1, t("nicknameRequired")),
+    email: z.string().min(1, t("emailRequired")).email(t("invalidEmail")),
+    phoneNumber: z
+      .string()
+      .min(1, t("phoneRequired"))
+      .regex(telefonoRegex, t("invalidPhone")),
+  });
+  type FormValues = z.infer<typeof schema>;
 
   const {
     control,
@@ -66,22 +67,22 @@ export default function CrearClienteScreen() {
         RolId: 1,
       });
 
-      Alert.alert("Cliente creado", "Se ha creado correctamente", [
+      Alert.alert(t("clientCreatedTitle"), t("clientCreatedMessage"), [
         { text: "OK", onPress: () => router.replace("/clientes") },
       ]);
     } catch (e: any) {
       if (e?.message === "EMAIL_DUPLICADO") {
-        Alert.alert("Email duplicado", "Ya existe un cliente con ese email");
+        Alert.alert(t("duplicateEmailTitle"), t("duplicateEmailMessage"));
         return;
       }
 
       if (e?.message === "TELEFONO_DUPLICADO") {
-        Alert.alert("Teléfono duplicado", "Ya existe un cliente con ese teléfono");
+        Alert.alert(t("duplicatePhoneTitle"), t("duplicatePhoneMessage"));
         return;
       }
 
-      const msg = e?.message || "No se ha podido crear el cliente";
-      Alert.alert("Error", msg);
+      const msg = e?.message || t("saveClientFailed");
+      Alert.alert(t("error"), msg);
     } finally {
       setGuardando(false);
     }
@@ -89,14 +90,14 @@ export default function CrearClienteScreen() {
 
   // si hay errores, opcional: mensaje general
   const onError = () => {
-    Alert.alert("Revisa el formulario", "Hay campos con errores");
+    Alert.alert(t("reviewFormTitle"), t("formHasErrorsMessage"));
   };
 
   return (
     <ScrollView contentContainerStyle={{ backgroundColor: theme.colors.background }}>
       <View style={styles.container}>
         <Card style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Nuevo cliente</Text>
+          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{t("newClient")}</Text>
 
           <View style={styles.form}>
             <Controller
@@ -105,7 +106,7 @@ export default function CrearClienteScreen() {
               render={({ field: { value, onChange } }) => (
                 <>
                   <TextInputRectangle
-                    placeholder="Nombre"
+                    placeholder={t("name")}
                     iconLeft="user"
                     iconRight="edit-2"
                     value={value}
@@ -125,7 +126,7 @@ export default function CrearClienteScreen() {
               render={({ field: { value, onChange } }) => (
                 <>
                   <TextInputRectangle
-                    placeholder="Apellidos"
+                    placeholder={t("surname")}
                     iconLeft="users"
                     iconRight="edit-2"
                     value={value}
@@ -147,7 +148,7 @@ export default function CrearClienteScreen() {
               render={({ field: { value, onChange } }) => (
                 <>
                   <TextInputRectangle
-                    placeholder="Nickname"
+                    placeholder={t("nickname")}
                     iconLeft="tag"
                     iconRight="edit-2"
                     value={value}
@@ -169,7 +170,7 @@ export default function CrearClienteScreen() {
               render={({ field: { value, onChange } }) => (
                 <>
                   <TextInputRectangle
-                    placeholder="Correo electrónico"
+                    placeholder={t("email")}
                     iconLeft="mail"
                     iconRight="at-sign"
                     value={value}
@@ -190,7 +191,7 @@ export default function CrearClienteScreen() {
               render={({ field: { value, onChange } }) => (
                 <>
                   <TextInputRectangle
-                    placeholder="Teléfono"
+                    placeholder={t("phoneNumber")}
                     iconLeft="phone"
                     iconRight="smartphone"
                     value={value}
@@ -209,7 +210,7 @@ export default function CrearClienteScreen() {
 
             <View style={styles.buttons}>
               <ButtonRectangular
-                text="Cancelar"
+                text={t("cancel")}
                 icon={{ type: "feather", name: "x" }}
                 colorBG={theme.colors.surface}
                 colorTxt={theme.colors.textPrimary}
@@ -220,7 +221,7 @@ export default function CrearClienteScreen() {
               />
 
               <ButtonRectangular
-                text={guardando || isSubmitting ? "Guardando..." : "Guardar"}
+                text={guardando || isSubmitting ? t("savingProgress") : t("save")}
                 icon={{ type: "feather", name: "check" }}
                 colorBG={theme.colors.primary}
                 colorTxt={theme.colors.primaryContrast}

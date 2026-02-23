@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import i18next from "i18next";
 import type {
   CategoriaProducto,
   Producto,
@@ -71,7 +72,7 @@ export const listProductCategories = async (): Promise<CategoriaProducto[]> => {
 
   return (data ?? []).map((row: any) => ({
     id: row.id,
-    nombre: row.nombre ?? row.name ?? `Categoria ${row.id}`,
+    nombre: row.nombre ?? row.name ?? i18next.t("categoryFallback", { id: row.id }),
   }));
 };
 

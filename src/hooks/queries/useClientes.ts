@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { clientesService } from "@/services/clientesService";
 import { sendNotificationToAdmins } from "@/hooks/use-push-notifications";
 import type { Cliente } from "@/types/Clients";
+import i18next from "i18next";
 
 export const clientesKeys = {
   all: ["clientes"] as const,
@@ -31,11 +32,11 @@ export function useCreateCliente() {
       qc.invalidateQueries({ queryKey: clientesKeys.all });
       const nombre = [created.name, created.surname].filter(Boolean).join(" ").trim();
       const texto = nombre
-        ? `Se ha creado un nuevo cliente: ${nombre}`
-        : "Se ha creado un nuevo cliente";
+        ? i18next.t("newClientCreatedWithName", { name: nombre })
+        : i18next.t("newClientCreated");
       const pushResult = await sendNotificationToAdmins(texto);
       if (!pushResult.ok) {
-        console.warn("No se pudo enviar notificacion a admins:", pushResult);
+        console.warn(i18next.t("sendNotificationToAdminsFailed"), pushResult);
       }
     },
   });
@@ -57,11 +58,11 @@ export function useCreateClienteWithAuth() {
       qc.invalidateQueries({ queryKey: clientesKeys.all });
       const nombre = [created.name, created.surname].filter(Boolean).join(" ").trim();
       const texto = nombre
-        ? `Se ha creado un nuevo cliente: ${nombre}`
-        : "Se ha creado un nuevo cliente";
+        ? i18next.t("newClientCreatedWithName", { name: nombre })
+        : i18next.t("newClientCreated");
       const pushResult = await sendNotificationToAdmins(texto);
       if (!pushResult.ok) {
-        console.warn("No se pudo enviar notificacion a admins:", pushResult);
+        console.warn(i18next.t("sendNotificationToAdminsFailed"), pushResult);
       }
     },
   });

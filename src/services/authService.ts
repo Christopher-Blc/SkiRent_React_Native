@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import type { UserProfile } from "@/types/Users";
 import { profileService } from "@/services/profileService";
+import i18next from "i18next";
 
 export type AuthErrorCode =
   | "EMAIL_INVALID"
@@ -36,29 +37,29 @@ export const authService = {
 
   async login(email: string, password: string): Promise<{ session: Session; user: UserProfile }> {
     if (!email.includes("@")) {
-      throw new AuthError("EMAIL_INVALID", "Email no válido");
+      throw new AuthError("EMAIL_INVALID", i18next.t("invalidEmail"));
     }
     if (!password?.trim()) {
-      throw new AuthError("PASSWORD_INVALID", "La contraseña es obligatoria");
+      throw new AuthError("PASSWORD_INVALID", i18next.t("passwordRequired"));
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       const msg = (error.message || "").toLowerCase();
       if (msg.includes("invalid login credentials")) {
-        throw new AuthError("PASSWORD_INVALID", "Email o contraseña incorrectos");
+        throw new AuthError("PASSWORD_INVALID", i18next.t("invalidCredentials"));
       }
       if (msg.includes("email")) {
-        throw new AuthError("EMAIL_INVALID", "Email no válido");
+        throw new AuthError("EMAIL_INVALID", i18next.t("invalidEmail"));
       }
       throw new AuthError("UNKNOWN", error.message);
     }
 
     const userId = data.user?.id;
-    if (!userId) throw new AuthError("USER_NOT_FOUND", "Usuario no encontrado");
+    if (!userId) throw new AuthError("USER_NOT_FOUND", i18next.t("userNotFound"));
 
     const perfil = await profileService.getMe();
-    if (!perfil) throw new AuthError("USER_NOT_FOUND", "Usuario no encontrado");
+    if (!perfil) throw new AuthError("USER_NOT_FOUND", i18next.t("userNotFound"));
 
     return { session: { userId, email: data.user?.email ?? email }, user: perfil };
   },

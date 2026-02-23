@@ -10,10 +10,14 @@ import { font } from "@/styles/typography";
 import { supabase } from "@/lib/supabase";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { usePushNotifications } from "@/hooks/use-push-notifications";
+import i18next from 'i18next';
+import {useTranslation} from 'react-i18next';
+
 
 
 export default function AppLayout() {
 
+  const { t } = useTranslation();
   //con eso podemos coger los datos del usuario desde el usuario almacenado en zustand
   const user = useUserStore((s) => s.user);
   const avatarUrl = user?.avatarUrl
@@ -65,7 +69,7 @@ export default function AppLayout() {
       tabBarActiveTintColor: theme.colors.headerText,
       tabBarInactiveTintColor: theme.colors.tabBarInactive,
       tabBarLabelStyle: { fontFamily: font.body, fontSize: 12 },
-      headerTitle: isInClientes ? "Clientes" : "Inicio",
+      //headerTitle: isInClientes ? t("clientes") : t("inicio"),
       headerLeft: () => {
         if (!isInClientes) return null;
         return (
@@ -99,8 +103,8 @@ export default function AppLayout() {
         name="home"
         
         options={{
-          title: 'Inicio',
-          tabBarLabel: 'Home',
+          title: t("start"),
+          tabBarLabel: t("home"),
           tabBarIcon: ({ color, size }) => (
             <Feather name="home" color={color} size={size} />
           ),
@@ -113,7 +117,7 @@ export default function AppLayout() {
         <Tabs.Screen
           name="(admin)/clientes"
           options={{
-            title: "Clientes",
+            title: t("clients"),
             tabBarIcon: ({ color, size }) => (
               <Feather name="users" color={color} size={size} />
             ),
@@ -126,8 +130,8 @@ export default function AppLayout() {
         name="productos/index"
         
         options={{
-          title: 'Productos',
-          tabBarLabel: 'Productos',
+          title: t("products"),
+          tabBarLabel: t("products"),
           tabBarIcon: ({ color, size }) => (
             <FontAwesome5 name="skiing" size={24} color={color} />
           ),
@@ -147,12 +151,12 @@ export default function AppLayout() {
     <Tabs.Screen
       name="(admin)"
       options={{
-        title: "Admin",
-        tabBarLabel: "Admin",
+        title: t("admin"),
+        tabBarLabel: t("admin"),
         tabBarIcon: ({ color, size }) => (
           <Feather name="shield" color={color} size={size} />
         ),
-        href: esAdmin ? undefined : null, // 👈 si no es admin, NO aparece
+        href: esAdmin ? undefined : null, // si no es admin, no aparece
       }}
     />
 

@@ -1,0 +1,19 @@
+{
+  "welcome": "Willkommen",
+  "email": "E-Mail",
+  "password": "Passwort",
+  "exampleEmail": "name@beispiel.com",
+  "forgotPassword": "Passwort vergessen?",
+  "login": "Anmelden",
+  "orContinueWith": "Oder fortfahren mit",
+  "noAccount": "Noch kein Konto?",
+  "registerNow": "Jetzt registrieren",
+  "settingsTitle": "Einstellungen",
+  "themeSection": "Thema",
+  "themeLight": "Hell",
+  "themeDark": "Dunkel",
+  "generalPreferences": "Allgemeine Einstellungen",
+  "languageSection": "Sprache",
+  "notifications": "Benachrichtigungen",
+  "enabled": "Aktiviert"
+}

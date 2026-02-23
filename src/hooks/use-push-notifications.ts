@@ -3,6 +3,8 @@ import { Alert, Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 
 import { EXPO_PUSH_API_URL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
@@ -38,6 +40,7 @@ type SendPushNotificationOptions = {
 const ADMIN_ROLE_ID = 2;
 
 export function usePushNotifications(options: UsePushNotificationsOptions = {}) {
+  const { t } = useTranslation();
   const { userId } = options;
   const [pushToken, setPushToken] = useState<string | null>(null);
   const [registering, setRegistering] = useState(false);
@@ -56,7 +59,7 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
         ? null
         : Notifications.addNotificationReceivedListener((notification) => {
             // Guardamos el texto para mostrarlo en pantalla.
-            const body = notification.request.content.body ?? 'Notificacion recibida';
+            const body = notification.request.content.body ?? t('notificationReceived');
             setLastNotification(body);
           });
 
@@ -71,7 +74,7 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
     const responseSub = Notifications.addNotificationResponseReceivedListener((response) => {
       // Captura la data extra cuando el usuario interactua con la notificacion.
       const data = response.notification.request.content.data;
-      console.log('Usuario interactuo con notificacion. Data:', data);
+      console.log(t('notificationInteractionLog'), data);
     });
 
     // Limpia el listener al desmontar para evitar duplicados.
@@ -94,7 +97,7 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
         return;
       }
       if (!Device.isDevice) {
-        Alert.alert('Dispositivo fisico requerido', 'Las notificaciones push no funcionan en simulador.');
+        Alert.alert(t('physicalDeviceRequired'), t('pushNotSupportedSimulator'));
         return;
       }
 
@@ -115,7 +118,7 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
       }
 
       if (finalStatus !== 'granted') {
-        Alert.alert('Permiso requerido', 'Necesitas aceptar permisos para recibir push.');
+        Alert.alert(t('permissionsRequired'), t('pushPermissionsRequiredMessage'));
         return;
       }
 
@@ -125,7 +128,7 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
       );
 
       setPushToken(tokenResponse.data);
-      console.log('Token de Expo registrado:', tokenResponse.data);
+      console.log(t('expoPushTokenRegistered'), tokenResponse.data);
 
       // Guardamos/actualizamos el token en Supabase para futuros envios.
       if (userId) {
@@ -140,11 +143,11 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
             { onConflict: 'token' },
           );
         if (error) {
-          Alert.alert('Error', error.message);
+          Alert.alert(t('error'), error.message);
         }
       }
     } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo registrar el token');
+      Alert.alert(t('error'), error instanceof Error ? error.message : t('registerTokenFailed'));
     } finally {
       setRegistering(false);
     }
@@ -157,21 +160,21 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
       const result = await sendPushNotification(message, { excludeToken });
       if (!result.ok) {
         if (result.reason === 'EMPTY_MESSAGE') {
-          Alert.alert('Falta mensaje', 'Escribe el texto de la notificacion.');
+          Alert.alert(t('missingMessageTitle'), t('missingMessageDescription'));
           return false;
         }
         if (result.reason === 'NO_RECIPIENTS') {
-          Alert.alert('Sin destinatarios', 'No hay tokens registrados.');
+          Alert.alert(t('noRecipientsTitle'), t('noRecipientsDescription'));
           return false;
         }
-        Alert.alert('Error', result.error ?? 'No se pudo enviar');
+        Alert.alert(t('error'), result.error ?? t('sendNotificationFailed'));
         return false;
       }
 
-      Alert.alert('Enviado', 'La notificacion se ha enviado.');
+      Alert.alert(t('sentTitle'), t('notificationSent'));
       return true;
     } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo enviar');
+      Alert.alert(t('error'), error instanceof Error ? error.message : t('sendNotificationFailed'));
       return false;
     } finally {
       setSending(false);
@@ -187,7 +190,10 @@ export function usePushNotifications(options: UsePushNotificationsOptions = {}) 
   };
 }
 
-export async function sendNotificationToAdmins(message: string, title = 'Nuevo cliente') {
+export async function sendNotificationToAdmins(
+  message: string,
+  title = i18next.t('newClientNotificationTitle'),
+) {
   return sendPushNotification(message, { audience: 'admins', title });
 }
 
@@ -201,7 +207,7 @@ export async function sendPushNotification(
   }
 
   const audience = options.audience ?? 'all';
-  const title = options.title ?? 'Notificacion';
+  const title = options.title ?? i18next.t('notificationTitle');
   const tokens = await fetchRecipientTokens(audience, options.excludeToken);
 
   if (tokens.length === 0) {
@@ -230,7 +236,7 @@ export async function sendPushNotification(
 
       if (!response.ok) {
         const errorBody = await response.text();
-        throw new Error(errorBody || 'Error enviando notificaciones');
+        throw new Error(errorBody || i18next.t('sendingNotificationsError'));
       }
     }
 
@@ -238,7 +244,7 @@ export async function sendPushNotification(
   } catch (error) {
     return {
       ok: false as const,
-      error: error instanceof Error ? error.message : 'No se pudo enviar',
+      error: error instanceof Error ? error.message : i18next.t('sendNotificationFailed'),
     };
   }
 }

@@ -4,12 +4,22 @@ import { Feather } from "@expo/vector-icons";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
+import { useTranslation } from "react-i18next";
 
 export default function PreferencesScreen() {
   const router = useRouter();
+  const { t, i18n } = useTranslation();
   const mode = useThemeStore((s) => s.mode);
   const setMode = useThemeStore((s) => s.setMode);
   const theme = getTheme(mode);
+  const currentLanguage = (i18n.resolvedLanguage ?? i18n.language ?? "en").split("-")[0];
+
+  const languageOptions = [
+    { label: "English", value: "en", icon: "globe" as const },
+    { label: "Español", value: "es", icon: "globe" as const },
+    { label: "Français", value: "fr", icon: "globe" as const },
+    { label: "Deutsch", value: "de", icon: "globe" as const },
+  ];
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}
@@ -24,18 +34,18 @@ export default function PreferencesScreen() {
         >
           <Feather name="arrow-left" size={20} color={theme.colors.textPrimary} />
         </Pressable>
-        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Preferencias</Text>
+        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{t("settingsTitle")}</Text>
       </View>
 
       <View style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}
       >
         <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>
-          Tema
+          {t("themeSection")}
         </Text>
 
         {([
-          { label: "Claro", value: "light", icon: "sun" },
-          { label: "Oscuro", value: "dark", icon: "moon" },
+          { label: t("themeLight"), value: "light", icon: "sun" },
+          { label: t("themeDark"), value: "dark", icon: "moon" },
         ] as const).map((option) => {
           const selected = mode === option.value;
           return (
@@ -75,16 +85,49 @@ export default function PreferencesScreen() {
 
       <View style={[styles.infoCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
         <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>
-          Preferencias generales
+          {t("generalPreferences")}
         </Text>
         <View style={[styles.infoRow, { borderTopColor: theme.colors.border }]}>
-          <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>Idioma</Text>
-          <Text style={[styles.infoValue, { color: theme.colors.textPrimary }]}>Español</Text>
+          <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>
+            {t("languageSection")}
+          </Text>
         </View>
-        <View style={[styles.infoRow, { borderTopColor: theme.colors.border }]}>
-          <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>Notificaciones</Text>
-          <Text style={[styles.infoValue, { color: theme.colors.textPrimary }]}>Activadas</Text>
-        </View>
+        {languageOptions.map((option) => {
+          const selected = currentLanguage === option.value;
+          return (
+            <Pressable
+              key={option.value}
+              onPress={() => i18n.changeLanguage(option.value)}
+              style={[
+                styles.optionRow,
+                { borderColor: theme.colors.border },
+                selected && { backgroundColor: theme.colors.surface },
+              ]}
+            >
+              <View style={styles.optionLeft}>
+                <View
+                  style={[
+                    styles.optionIconBlock,
+                    { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+                  ]}
+                >
+                  <Feather name={option.icon} size={16} color={theme.colors.primary} />
+                </View>
+                <Text style={[styles.optionText, { color: theme.colors.textPrimary }]}>
+                  {option.label}
+                </Text>
+              </View>
+              <View
+                style={[
+                  styles.radio,
+                  { borderColor: theme.colors.textSecondary },
+                  selected && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
+                ]}
+              />
+            </Pressable>
+          );
+        })}
+        
       </View>
     </View>
   );
