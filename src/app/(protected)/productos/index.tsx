@@ -16,12 +16,15 @@ import { getProduct } from "@/services/productsService";
 import type { Producto } from "@/types/Product";
 import { ProductCard } from "@/components/ProductCard";
 import { supabase } from "@/lib/supabase";
+import { useTranslation } from "react-i18next";
 
 const PRODUCT_IMAGES_BUCKET = "userData";
 const fallbackImage = "https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
 
 //Pagina con lista de productos
 export default function ProductosListScreen() {
+  // Estado local para lista, carga y error.
+  const { t } = useTranslation();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -34,6 +37,7 @@ export default function ProductosListScreen() {
     return supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(value).data.publicUrl;
   };
 
+  // Carga el catalogo de productos desde Supabase.
   const loadProducts = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -47,6 +51,7 @@ export default function ProductosListScreen() {
     }
   }, []);
 
+  // Recarga cada vez que esta pantalla vuelve a foco.
   useFocusEffect(
     useCallback(() => {
       loadProducts();
@@ -54,12 +59,17 @@ export default function ProductosListScreen() {
   );
 
   return (
+    // Vista principal de listado de materiales.
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.kicker, { color: theme.colors.textSecondary }]}>Catalogo</Text>
+        <Text style={[styles.kicker, { color: theme.colors.textSecondary }]}>
+          {t("productCatalog")}
+        </Text>
 
         <View style={styles.titleRow}>
-          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Listado de productos</Text>
+          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+            {t("productListTitle")}
+          </Text>
           <TouchableOpacity
             style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
             onPress={() => router.push("/productos/crear")}
@@ -68,18 +78,24 @@ export default function ProductosListScreen() {
           </TouchableOpacity>
         </View>
 
-        <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>Crea y edita productos con imagen</Text>
+        <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
+          {t("createAndEditProductsWithImage")}
+        </Text>
       </View>
 
       {isLoading ? (
         <View style={styles.stateWrap}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={[styles.stateText, { color: theme.colors.textSecondary }]}>Cargando...</Text>
+          <Text style={[styles.stateText, { color: theme.colors.textSecondary }]}>
+            {t("loading")}...
+          </Text>
         </View>
       ) : hasError ? (
         <View style={styles.stateWrap}>
           <Feather name="alert-circle" size={20} color={theme.colors.primary} />
-          <Text style={[styles.stateText, { color: theme.colors.textSecondary }]}>No se pudieron cargar los productos.</Text>
+          <Text style={[styles.stateText, { color: theme.colors.textSecondary }]}>
+            {t("productsLoadFailed")}
+          </Text>
         </View>
       ) : (
         <FlatList

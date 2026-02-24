@@ -1,11 +1,11 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useUserStore } from "@/store/userStore";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import {styles } from "@/styles/home.styles";
 import { useRoles } from "@/hooks/queries/useRoles";
-import { useReservasCount } from "@/hooks/queries/useReservas";
+import { useReservasTotalCount } from "@/hooks/queries/useReservas";
 import { useTranslation } from "react-i18next";
 
 
@@ -20,7 +20,7 @@ export default function Home() {
     data: pedidosCount,
     isLoading: pedidosLoading,
     error: pedidosError,
-  } = useReservasCount(user?.id ?? "");
+  } = useReservasTotalCount();
 
   const nombre = user?.displayName ?? user?.name ?? t("users");
   const roleName = rolesLoading
@@ -111,4 +111,3 @@ export default function Home() {
     </View>
   );
 }
-

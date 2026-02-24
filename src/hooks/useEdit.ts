@@ -13,7 +13,8 @@ import {
 import { useTranslation } from "react-i18next";
 
 const H = Dimensions.get("window").height;
-const telefonoRegex = /^\+?\d{7,15}$/;
+const telefonoRegex = /^\d{9}$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export function useEdit() {
   const { t } = useTranslation();
@@ -21,7 +22,7 @@ export function useEdit() {
     name: z.string().min(1, t("nameRequired")),
     surname: z.string().min(1, t("surnameRequired")),
     displayName: z.string().min(1, t("nicknameRequired")),
-    email: z.string().min(1, t("emailRequired")).email(t("invalidEmail")),
+    email: z.string().min(1, t("emailRequired")).regex(emailRegex, t("invalidEmail")),
     phoneNumber: z
       .string()
       .min(1, t("phoneRequired"))

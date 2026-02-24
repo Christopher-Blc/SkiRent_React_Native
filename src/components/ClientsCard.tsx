@@ -4,6 +4,7 @@ import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 import { supabase } from "@/lib/supabase";
+import { useTranslation } from "react-i18next";
 
 interface ClientsCardProps {
   name: string;
@@ -25,6 +26,7 @@ export const ClientsCard = ({
   avatar,
   pedidosCount,
 }: ClientsCardProps) => {
+  const { t } = useTranslation();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const avatarUrl = avatar
@@ -74,7 +76,7 @@ export const ClientsCard = ({
         {typeof pedidosCount === "number" ? (
           <View style={styles.meta}>
             <Text style={[styles.metaLabel, { color: theme.colors.textSecondary }]}>
-              Pedidos
+              {t("reservations")}
             </Text>
             <Text style={[styles.metaValue, { color: theme.colors.textPrimary }]}>
               {pedidosCount}

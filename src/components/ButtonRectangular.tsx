@@ -53,38 +53,60 @@ export const ButtonRectangular = ({
         },
       ]}
     >
-      {/* ZONA 1 — ICONO */}
-      <View style={styles.zone1}>
-        {icon ? (
-          <View
-            style={[
-              styles.iconBlock,
-              {
-                backgroundColor: colorBorder
-                  ? colorBorder
-                  : "rgba(255,255,255,0.18)",
-                width: iconBoxSize,
-                height: iconBoxSize,
-                borderRadius: iconRadius,
-              },
-            ]}
-          >
-            {icon.type === "feather" ? (
-              <Feather name={icon.name} color={colorIcon} size={iconSize} />
-            ) : (
-              <AntDesign name="google" color={colorIcon} size={iconSize} />
-            )}
+      {icon ? (
+        <>
+          {/* ZONA 1 — ICONO */}
+          <View style={styles.zone1}>
+            <View
+              style={[
+                styles.iconBlock,
+                {
+                  backgroundColor: colorBorder
+                    ? colorBorder
+                    : "rgba(255,255,255,0.18)",
+                  width: iconBoxSize,
+                  height: iconBoxSize,
+                  borderRadius: iconRadius,
+                },
+              ]}
+            >
+              {icon.type === "feather" ? (
+                <Feather name={icon.name} color={colorIcon} size={iconSize} />
+              ) : (
+                <AntDesign name="google" color={colorIcon} size={iconSize} />
+              )}
+            </View>
           </View>
-        ) : null}
-      </View>
 
-      {/* ZONA 2 — TEXTO */}
-      <View style={styles.zone}>
-        <Text style={[styles.buttonText, { color: colorTxt }]}>{text}</Text>
-      </View>
+          {/* ZONA 2 — TEXTO */}
+          <View style={styles.zone}>
+            <Text
+              style={[styles.buttonText, { color: colorTxt }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {text}
+            </Text>
+          </View>
 
-      {/* ZONA 3 — VACIA */}
-      <View style={styles.zone} />
+          {/* ZONA 3 — VACIA */}
+          <View style={styles.zone} />
+        </>
+      ) : (
+        <View style={styles.noIconContent}>
+          <View
+            style={styles.noIconTextWrap}
+          >
+            <Text
+              style={[styles.buttonText, { color: colorTxt }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {text}
+            </Text>
+          </View>
+        </View>
+      )}
     </Pressable>
   );
 };
@@ -105,6 +127,17 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "flex-start" ,
     paddingLeft: 7
+  },
+  noIconContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  noIconTextWrap: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   iconBlock: {
     alignItems: "center",

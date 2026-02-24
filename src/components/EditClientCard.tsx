@@ -6,16 +6,28 @@ import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { font } from "@/styles/typography";
 import { supabase } from "@/lib/supabase";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   cliente: Cliente;
   onEditar: () => void;
   onEliminar: () => void;
+  onNuevoPedido?: () => void;
+  nuevoPedidoText?: string;
   pedidos?: string[];
   pedidosCount?: number | null;
 }
 
-export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedidosCount }: Props) {
+export function ClienteCard({
+  cliente,
+  onEditar,
+  onEliminar,
+  onNuevoPedido,
+  nuevoPedidoText = "Nuevo pedido",
+  pedidos = [],
+  pedidosCount,
+}: Props) {
+  const { t } = useTranslation();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const initials = `${cliente.name?.[0] ?? ""}${cliente.surname?.[0] ?? ""}`.toUpperCase();
@@ -64,14 +76,14 @@ export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedid
           ]}
         >
           <Text style={[styles.statusText, { color: theme.colors.textSecondary }]}>
-            Activo
+            {t("accountActive")}
           </Text>
         </View>
       </View>
 
       <View style={styles.infoRow}>
         <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-          Correo
+          {t("email")}
         </Text>
         <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
           {cliente.email}
@@ -80,7 +92,7 @@ export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedid
 
       <View style={styles.infoRow}>
         <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-          Teléfono
+          {t("phoneNumber")}
         </Text>
         <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
           {cliente.phoneNumber}
@@ -89,7 +101,7 @@ export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedid
 
       <View style={styles.infoRow}>
         <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-          Nickname
+          {t("nickname")}
         </Text>
         <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
           {cliente.displayName}
@@ -98,7 +110,7 @@ export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedid
 
       <View style={styles.infoRow}>
         <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-          Pedidos
+          {t("reservations")}
         </Text>
         <Text style={[styles.value, { color: theme.colors.textPrimary }]}>
           {pedidosTotal}
@@ -106,7 +118,7 @@ export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedid
       </View>
 
       <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>
-        Últimos pedidos
+        {t("recentOrders")}
       </Text>
 
       <View style={styles.orders}>
@@ -120,23 +132,37 @@ export function ClienteCard({ cliente, onEditar, onEliminar, pedidos = [], pedid
         ))}
         {pedidos.length === 0 ? (
           <Text style={[styles.orderItem, { color: theme.colors.textSecondary }]}>
-            • Sin pedidos recientes
+            • {t("noRecentOrders")}
           </Text>
         ) : null}
       </View>
 
       <View style={styles.editButton}>
+        {onNuevoPedido ? (
+          <>
+            <ButtonRectangular
+              text={nuevoPedidoText}
+              colorBG={theme.colors.primary}
+              colorTxt={theme.colors.primaryContrast}
+              onPressed={onNuevoPedido}
+              widthButton="100%"
+            />
+            <View style={{ height: 10 }} />
+          </>
+        ) : null}
+
         <ButtonRectangular
-          text="Editar"
-          colorBG={theme.colors.primary}
-          colorTxt={theme.colors.primaryContrast}
+          text={t("edit")}
+          colorBG={theme.colors.surface}
+          colorTxt={theme.colors.textPrimary}
+          colorBorder={theme.colors.border}
           onPressed={onEditar}
           widthButton="100%"
         />
         <View style={{ height: 10 }} />
         
         <ButtonRectangular
-          text="Eliminar"
+          text={t("delete")}
           colorBG={theme.colors.surface}
           colorTxt={theme.colors.error}
           colorBorder={theme.colors.error}

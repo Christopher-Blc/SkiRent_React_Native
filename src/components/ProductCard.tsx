@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useThemeStore } from "@/store/themeStore";
@@ -16,13 +16,8 @@ interface ProductCardProps {
 
 export const ProductCard = ({ image, title, price, description, onEdit }: ProductCardProps) => {
   const { t } = useTranslation();
-  const [quantity, setQuantity] = useState<number>(0);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
-
-  const handleAdd = () => {
-    setQuantity(quantity + 1);
-  };
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
@@ -42,7 +37,7 @@ export const ProductCard = ({ image, title, price, description, onEdit }: Produc
               "https://cdn-icons-png.flaticon.com/512/149/149071.png",
           }}
           style={styles.image}
-          resizeMode="repeat"
+          resizeMode="cover"
         />
       </View>
 
@@ -59,12 +54,6 @@ export const ProductCard = ({ image, title, price, description, onEdit }: Produc
       <Text style={[styles.description, { color: theme.colors.textSecondary }]}>
         {description || t("noDescription")}
       </Text>
-
-      <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]} onPress={handleAdd}>
-        <Text style={[styles.buttonText, { color: theme.colors.primaryContrast }]}>{t("addToCart")}</Text>
-      </TouchableOpacity>
-
-      <Text style={[styles.quantity, { color: theme.colors.textPrimary }]}>{t("units")} {quantity}</Text>
     </View>
   );
 };
@@ -128,21 +117,6 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     fontFamily: font.body,
-    marginBottom: 12,
-  },
-  button: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  buttonText: {
-    fontWeight: "700",
-    fontFamily: font.display,
-  },
-  quantity: {
-    fontSize: 14,
-    fontFamily: font.body,
+    marginBottom: 2,
   },
 });

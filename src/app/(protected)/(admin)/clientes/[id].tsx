@@ -1,35 +1,34 @@
-import React from "react";
-import { Text, Modal, Pressable, Animated, StyleSheet, View, Image } from "react-native";
+import React, { useState } from "react";
+import { Text, Modal, Pressable, Animated, StyleSheet, View, Image, Alert } from "react-native";
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { Button, Dialog, Portal } from "react-native-paper";
 import { TextInputRectangle } from "@/components/TextInputRectangle";
 import { ButtonRectangular } from "@/components/ButtonRectangular";
 import { ClienteCard } from "@/components/EditClientCard";
+import { OrderFormModal } from "@/components/OrderFormModal";
 import { useEdit } from "@/hooks/useEdit";
 import { useThemeStore } from "@/store/themeStore";
 import { getTheme } from "@/styles/theme";
 import { Feather } from "@expo/vector-icons";
 import { font } from "@/styles/typography";
 import { supabase } from "@/lib/supabase";
-import { useReservasByCliente, useReservasCount } from "@/hooks/queries/useReservas";
+import { useCreateReserva, useReservasByCliente, useReservasCount } from "@/hooks/queries/useReservas";
 import { useTranslation } from "react-i18next";
 
 export default function ClienteDetalle() {
+  // Hooks de navegacion, tema y estado del cliente.
   const router = useRouter();
   const { id: clientId } = useLocalSearchParams();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
-  //constantes que vienen del hook useEdit y controlan toda la logica de editar/eliminar cliente
   const {
     cargando,
     cliente,
-
     editar,
     animY,
     abrirEditar,
     cerrarEditar,
-
     name,
     setName,
     surname,
@@ -40,23 +39,29 @@ export default function ClienteDetalle() {
     setEmail,
     phoneNumber,
     setPhoneNumber,
-
     confirmDeleteVisible,
     closeConfirmDelete,
     confirmarEliminar,
     eliminar,
-
     guardar,
     cambiarAvatar,
     avatarUploading,
   } = useEdit();
 
   const { t } = useTranslation();
+  // Controla la apertura del modal para crear pedido.
+  const [crearPedidoVisible, setCrearPedidoVisible] = useState(false);
+  // Query y mutation para pedidos del cliente actual.
+  const createReserva = useCreateReserva(clientId as string);
   const { data: reservas } = useReservasByCliente(clientId as string, 5);
   const { data: reservasCount } = useReservasCount(clientId as string);
-  const pedidos = (reservas ?? []).map((r) => `#${r.id} · ${r.estado ?? "Sin estado"}`);
+  const pedidos = (reservas ?? []).map((r) => {
+    const material = r.notas?.startsWith("Material:") ? r.notas.replace("Material:", "").trim() : null;
+    const rango = r.fechaInicio && r.fechaFin ? `${r.fechaInicio} -> ${r.fechaFin}` : "";
+    const total = typeof r.total === "number" ? ` · ${r.total.toFixed(2)} EUR` : "";
+    return `#${r.id} · ${material ?? t("noStatus")} ${rango}${total}`.trim();
+  });
 
-  //Imagen de avatar del cliente que se saca del bucket de supa
   const avatarUrl = cliente?.avatar
     ? `${supabase.storage.from("userData").getPublicUrl(cliente.avatar).data.publicUrl}?t=${Date.now()}`
     : null;
@@ -68,6 +73,7 @@ export default function ClienteDetalle() {
       </View>
     );
   }
+
   if (!cliente) {
     return (
       <View style={[styles.page, { backgroundColor: theme.colors.background }]}>
@@ -78,26 +84,24 @@ export default function ClienteDetalle() {
 
   return (
     <>
+      {/* Configuracion del header de la pantalla */}
       <Stack.Screen
         options={{
-          title: t("client") + " " + name,
+          title: `${t("client")} ${name}`,
           headerTitleAlign: "center",
           headerLeft: () => (
-            <Pressable
-              onPress={() => router.replace("/clientes")}
-              style={{ paddingHorizontal: 8 }}
-            >
+            <Pressable onPress={() => router.replace("/clientes")} style={{ paddingHorizontal: 8 }}>
               <Feather name="arrow-left" size={20} color={theme.colors.headerText} />
             </Pressable>
           ),
         }}
       />
 
-      {/* Confirmar eliminar popup*/}
+      {/* Dialog de confirmacion para borrar cliente */}
       <Portal>
         <Dialog visible={confirmDeleteVisible} onDismiss={closeConfirmDelete}>
           <Dialog.Title style={[styles.dialogTitle, { color: theme.colors.textPrimary }]}>
-            Eliminar cliente
+            {t("deleteClient")}
           </Dialog.Title>
           <Dialog.Content>
             <Text style={[styles.dialogText, { color: theme.colors.textSecondary }]}>
@@ -105,27 +109,54 @@ export default function ClienteDetalle() {
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={closeConfirmDelete}>Cancelar</Button>
-            <Button onPress={confirmarEliminar}>Eliminar</Button>
+            <Button onPress={closeConfirmDelete}>{t("cancel")}</Button>
+            <Button onPress={confirmarEliminar}>{t("delete")}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
 
-
+      {/* Tarjeta principal con datos del cliente y pedidos recientes */}
       <View style={[styles.page, { backgroundColor: theme.colors.background }]}>
         <ClienteCard
           cliente={cliente}
           onEditar={abrirEditar}
           onEliminar={eliminar}
+          onNuevoPedido={() => setCrearPedidoVisible(true)}
+          nuevoPedidoText={t("newOrder")}
           pedidos={pedidos}
           pedidosCount={reservasCount}
         />
       </View>
-      {/* Editar cliente modal que aparece desde abajo y ocupa el 80% de la pantalla */}
+
+      {/* Modal reutilizable para crear un pedido */}
+      <OrderFormModal
+        visible={crearPedidoVisible}
+        title={t("newOrder")}
+        subtitle={t("chooseMaterialAndDates")}
+        submitLabel={t("saveOrder")}
+        isSaving={createReserva.isPending}
+        onClose={() => setCrearPedidoVisible(false)}
+        onSubmit={async (values) => {
+          try {
+            await createReserva.mutateAsync({
+              clienteId: clientId as string,
+              fechaInicio: values.fechaInicio,
+              fechaFin: values.fechaFin,
+              total: values.total,
+              estado: values.estado ?? "BORRADOR",
+              notas: `Material: ${values.materialNombre}`,
+            });
+            Alert.alert(t("orderCreatedTitle"), t("orderCreatedMessage"));
+            setCrearPedidoVisible(false);
+          } catch (e: any) {
+            Alert.alert(t("error"), e?.message ?? t("orderSaveFailed"));
+          }
+        }}
+      />
+
+      {/* Modal inferior para editar los datos del cliente */}
       <Modal visible={editar} transparent animationType="none" onRequestClose={cerrarEditar}>
         <Pressable style={styles.backdrop} onPress={cerrarEditar} />
-
-        {/* Hoja animada desde abajo que contiene el formulario de editar el usuario */}
         <Animated.View
           style={[
             styles.sheet,
@@ -137,9 +168,7 @@ export default function ClienteDetalle() {
           ]}
         >
           <View style={[styles.handle, { backgroundColor: theme.colors.border }]} />
-          <Text style={[styles.sheetTitle, { color: theme.colors.textPrimary }]}>
-            {t("editClient")}
-          </Text>
+          <Text style={[styles.sheetTitle, { color: theme.colors.textPrimary }]}>{t("editClient")}</Text>
 
           <View style={styles.avatarRow}>
             <View
@@ -162,30 +191,25 @@ export default function ClienteDetalle() {
               colorTxt={theme.colors.textPrimary}
               colorBorder={theme.colors.border}
               onPressed={cambiarAvatar}
-              widthButton={'80%'}
+              widthButton="80%"
             />
           </View>
 
-          {/* el keyboard avoiding view para que no tape el teclado los inputs , cuanto mas offset mas sube el contenido */}
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={60}
           >
-            {/* scrollview con los inputs del formulario */}
             <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <TextInputRectangle placeholder={t("name")} value={name} onChangeText={setName} />
               <View style={{ marginTop: 14 }} />
-
               <TextInputRectangle placeholder={t("surname")} value={surname} onChangeText={setSurname} />
               <View style={{ marginTop: 14 }} />
-
               <TextInputRectangle
                 placeholder={t("nickname")}
                 value={displayName}
                 onChangeText={setDisplayName}
               />
               <View style={{ marginTop: 14 }} />
-
               <TextInputRectangle
                 placeholder={t("email")}
                 value={email}
@@ -194,7 +218,6 @@ export default function ClienteDetalle() {
                 autoCapitalize="none"
               />
               <View style={{ marginTop: 14 }} />
-
               <TextInputRectangle
                 placeholder={t("phoneNumber")}
                 value={phoneNumber}
@@ -209,7 +232,6 @@ export default function ClienteDetalle() {
                   colorTxt={theme.colors.primaryContrast}
                   onPressed={guardar}
                 />
-
                 <View style={{ height: 10 }} />
                 <ButtonRectangular
                   text={t("cancel")}
@@ -219,7 +241,6 @@ export default function ClienteDetalle() {
                   onPressed={cerrarEditar}
                 />
               </View>
-
               <View style={{ height: 30 }} />
             </ScrollView>
           </KeyboardAvoidingView>

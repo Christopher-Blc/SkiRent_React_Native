@@ -13,19 +13,22 @@ import { font } from "@/styles/typography";
 import { useCreateCliente } from "@/hooks/queries/useClientes";
 import { useTranslation } from "react-i18next";
 
-const telefonoRegex = /^\+?\d{7,15}$/;
+const telefonoRegex = /^\d{9}$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export default function CrearClienteScreen() {
+  // Estado visual de guardado para evitar doble envio.
   const { t } = useTranslation();
   const [guardando, setGuardando] = useState(false);
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
   const createMutation = useCreateCliente();
+  // Esquema de validacion del formulario.
   const schema = z.object({
     name: z.string().min(1, t("nameRequired")),
     surname: z.string().min(1, t("surnameRequired")),
     displayName: z.string().min(1, t("nicknameRequired")),
-    email: z.string().min(1, t("emailRequired")).email(t("invalidEmail")),
+    email: z.string().min(1, t("emailRequired")).regex(emailRegex, t("invalidEmail")),
     phoneNumber: z
       .string()
       .min(1, t("phoneRequired"))
@@ -94,6 +97,7 @@ export default function CrearClienteScreen() {
   };
 
   return (
+    // Contenedor con formulario de alta de cliente.
     <ScrollView contentContainerStyle={{ backgroundColor: theme.colors.background }}>
       <View style={styles.container}>
         <Card style={[styles.card, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>

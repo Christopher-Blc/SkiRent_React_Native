@@ -34,6 +34,7 @@ const PRODUCT_IMAGES_BUCKET = "userData";
 const fallbackImage = "https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
 
 export default function CrearProductoScreen() {
+  // Estado del formulario de creacion de producto.
   const { t } = useTranslation();
   const mode = useThemeStore((s) => s.mode);
   const theme = getTheme(mode);
@@ -53,11 +54,13 @@ export default function CrearProductoScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
 
+  // Nombre de la categoria seleccionada para mostrar en el selector.
   const selectedCategoriaNombre = useMemo(
     () => categorias.find((c) => c.id === categoriaId)?.nombre ?? t("selectCategory"),
     [categorias, categoriaId]
   );
 
+  // Carga inicial de categorias.
   useEffect(() => {
     const loadCategorias = async () => {
       try {
@@ -74,12 +77,14 @@ export default function CrearProductoScreen() {
     loadCategorias();
   }, []);
 
+  // Convierte una ruta o URL guardada en imagen utilizable.
   const resolveImage = (value?: string | null) => {
     if (!value) return fallbackImage;
     if (value.startsWith("http://") || value.startsWith("https://")) return value;
     return supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(value).data.publicUrl;
   };
 
+  // Selecciona imagen de galeria y la sube al bucket.
   const pickAndUploadImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -127,6 +132,7 @@ export default function CrearProductoScreen() {
     }
   };
 
+  // Valida campos y persiste el producto.
   const guardarProducto = async () => {
     const nombreLimpio = nombre.trim();
 
@@ -168,6 +174,7 @@ export default function CrearProductoScreen() {
 
   return (
     <>
+      {/* Pantalla de creacion con formulario y selector de categoria */}
       <Stack.Screen options={{ title: t("createProduct") }} />
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>

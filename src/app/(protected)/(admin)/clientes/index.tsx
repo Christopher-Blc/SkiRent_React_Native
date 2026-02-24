@@ -41,7 +41,7 @@ export default function Clientes() {
               ]}
             >
               <Text style={[styles.metaLabel, { color: theme.colors.textSecondary }]}>
-                Total
+                {t("total")}
               </Text>
               <Text style={[styles.metaValue, { color: theme.colors.textPrimary }]}>
                 {lista.length}

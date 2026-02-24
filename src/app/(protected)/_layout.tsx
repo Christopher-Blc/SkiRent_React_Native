@@ -132,6 +132,17 @@ export default function AppLayout() {
         name="productos/editar/[id]"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="pedidos/index"
+        options={{
+          title: t("reservations"),
+          tabBarLabel: t("reservations"),
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="clipboard" color={color} size={size} />
+          ),
+          href: esAdmin ? "/pedidos" : null,
+        }}
+      />
     <Tabs.Screen
       name="(admin)"
       options={{
